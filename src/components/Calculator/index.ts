@@ -1,3 +1,4 @@
+export { Calculator } from './Calculator'
 export { StatusIndicator, deriveStatus, type StatusType } from './StatusIndicator'
 export { CurrencyInput } from './CurrencyInput'
 export { AgeSlider } from './AgeSlider'

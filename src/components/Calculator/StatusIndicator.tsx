@@ -42,6 +42,7 @@ export function StatusIndicator({ status, message, className }: StatusIndicatorP
       className={cn('flex items-center gap-3 rounded-lg p-3', config.colorClasses, className)}
       role="status"
       aria-live="polite"
+      data-testid="status-indicator"
     >
       <Icon className={cn('size-5 shrink-0', config.iconClasses)} aria-hidden="true" />
       <div className="flex flex-col">

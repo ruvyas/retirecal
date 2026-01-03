@@ -382,12 +382,12 @@
 
 **Acceptance Criteria:**
 
-- [ ] `src/hooks/useCalculator.ts` manages all calculator state
-- [ ] Uses `useReducer` for complex state management
-- [ ] Exposes: inputs, results, setInput, reset functions
-- [ ] Triggers recalculation on input changes
-- [ ] Memoizes expensive calculations
-- [ ] Unit tests cover:
+- [x] `src/hooks/useCalculator.ts` manages all calculator state
+- [x] Uses `useReducer` for complex state management
+- [x] Exposes: inputs, results, setInput, reset functions
+- [x] Triggers recalculation on input changes
+- [x] Memoizes expensive calculations
+- [x] Unit tests cover:
   - Initial state is correct
   - Input updates trigger recalculation
   - Reset restores initial state
@@ -401,11 +401,11 @@
 
 **Acceptance Criteria:**
 
-- [ ] `src/components/Calculator/index.tsx` assembles all pieces
-- [ ] InputPanel connected to useCalculator dispatch
-- [ ] ResultsPanel receives calculated results
-- [ ] Real-time updates work end-to-end
-- [ ] E2E test verifies: changing input updates results
+- [x] `src/components/Calculator/Calculator.tsx` assembles all pieces
+- [x] InputPanel connected to useCalculator dispatch
+- [x] ResultsPanel receives calculated results
+- [x] Real-time updates work end-to-end
+- [x] E2E test verifies: changing input updates results
 
 ---
 
@@ -415,12 +415,12 @@
 
 **Acceptance Criteria:**
 
-- [ ] `src/lib/utils/validators.ts` with validation functions
-- [ ] Age validation: 18-80 for current, current+1 to 100 for retirement
-- [ ] Currency validation: non-negative, within defined bounds
-- [ ] Error messages displayed for invalid inputs
-- [ ] Invalid inputs don't crash calculations
-- [ ] Unit tests cover all validation rules
+- [x] `src/lib/utils/validators.ts` with validation functions
+- [x] Age validation: 18-80 for current, current+1 to 100 for retirement
+- [x] Currency validation: non-negative, within defined bounds
+- [x] Error messages displayed for invalid inputs
+- [x] Invalid inputs don't crash calculations
+- [x] Unit tests cover all validation rules
 
 ---
 
