@@ -153,10 +153,10 @@
 
 **Acceptance Criteria:**
 
-- [ ] Function `calculateSustainableIncome(totalSavings, returnRate, retirementYears)` implemented
-- [ ] Uses annuity formula to determine sustainable withdrawal
-- [ ] Returns monthly amount (annual / 12)
-- [ ] Unit tests cover:
+- [x] Function `calculateSustainableIncome(totalSavings, returnRate, retirementYears)` implemented
+- [x] Uses annuity formula to determine sustainable withdrawal
+- [x] Returns monthly amount (annual / 12)
+- [x] Unit tests cover:
   - Standard income calculation
   - Edge case: 0 savings returns 0
   - Edge case: short retirement period
@@ -170,10 +170,10 @@
 
 **Acceptance Criteria:**
 
-- [ ] Function `estimateAfterTaxAmount(grossAmount, taxRate)` implemented in `src/lib/calculations/tax.ts`
-- [ ] Default tax rate of 25% applied
-- [ ] Can accept custom tax rate parameter
-- [ ] Unit tests cover:
+- [x] Function `estimateAfterTaxAmount(grossAmount, taxRate)` implemented in `src/lib/calculations/tax.ts`
+- [x] Default tax rate of 25% applied
+- [x] Can accept custom tax rate parameter
+- [x] Unit tests cover:
   - Standard tax calculation
   - Edge case: 0% tax rate
   - Edge case: 0 gross amount
@@ -186,7 +186,7 @@
 
 **Acceptance Criteria:**
 
-- [ ] `src/lib/calculations/constants.ts` created with:
+- [x] `src/lib/calculations/constants.ts` created with:
   - `DEFAULT_INFLATION_RATE`: 2.0%
   - `DEFAULT_PRE_RETIREMENT_RETURN_CONSERVATIVE`: 4.0%
   - `DEFAULT_PRE_RETIREMENT_RETURN_MODERATE`: 5.5%
@@ -194,8 +194,8 @@
   - `DEFAULT_RETIREMENT_RETURN`: 3.5%
   - `DEFAULT_LIFE_EXPECTANCY`: 95 years
   - `DEFAULT_WITHDRAWAL_TAX_RATE`: 25%
-- [ ] All constants exported and typed
-- [ ] Unit test verifies constants are defined with correct values
+- [x] All constants exported and typed
+- [x] Unit test verifies constants are defined with correct values
 
 ---
 
@@ -205,14 +205,14 @@
 
 **Acceptance Criteria:**
 
-- [ ] `src/lib/types/calculator.ts` created with interfaces:
+- [x] `src/lib/types/calculator.ts` created with interfaces:
   - `CalculatorInputs`: all user input fields
   - `CalculatorResults`: all output values
   - `Assumptions`: configurable assumptions
   - `SavingsBreakdown`: RRSP, TFSA, non-registered
-- [ ] All types exported
-- [ ] Types used in calculation functions
-- [ ] Validation bounds defined (min/max ages, amounts)
+- [x] All types exported
+- [x] Types used in calculation functions
+- [x] Validation bounds defined (min/max ages, amounts)
 
 ---
 
