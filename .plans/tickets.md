@@ -224,11 +224,11 @@
 
 **Acceptance Criteria:**
 
-- [ ] `src/components/Layout/Header.tsx` with logo placeholder and minimal nav
-- [ ] `src/components/Layout/Footer.tsx` with disclaimer placeholder
-- [ ] Responsive styling (mobile-first)
-- [ ] Components use Tailwind classes matching design aesthetic
-- [ ] Unit tests verify components render without errors
+- [x] `src/components/Layout/Header.tsx` with logo placeholder and minimal nav
+- [x] `src/components/Layout/Footer.tsx` with disclaimer placeholder
+- [x] Responsive styling (mobile-first)
+- [x] Components use Tailwind classes matching design aesthetic
+- [x] Unit tests verify components render without errors
 
 ---
 
@@ -238,12 +238,12 @@
 
 **Acceptance Criteria:**
 
-- [ ] `src/components/Calculator/CurrencyInput.tsx` wraps Shadcn Input
-- [ ] Displays value with CAD formatting ($1,234.56)
-- [ ] Handles numeric input, strips non-numeric characters
-- [ ] Supports min/max value constraints
-- [ ] Accessible with proper labels and ARIA attributes
-- [ ] Unit tests cover:
+- [x] `src/components/Calculator/CurrencyInput.tsx` wraps Shadcn Input
+- [x] Displays value with CAD formatting ($1,234.56)
+- [x] Handles numeric input, strips non-numeric characters
+- [x] Supports min/max value constraints
+- [x] Accessible with proper labels and ARIA attributes
+- [x] Unit tests cover:
   - Value formatting on blur
   - Value parsing on input
   - Min/max constraint enforcement
@@ -257,12 +257,12 @@
 
 **Acceptance Criteria:**
 
-- [ ] `src/components/Calculator/AgeSlider.tsx` uses Shadcn Slider
-- [ ] Numeric input shows current value and allows override
-- [ ] Slider and input stay synchronized
-- [ ] Supports configurable min/max (default 18-100)
-- [ ] Accessible with proper labels
-- [ ] Unit tests cover:
+- [x] `src/components/Calculator/AgeSlider.tsx` uses Shadcn Slider
+- [x] Numeric input shows current value and allows override
+- [x] Slider and input stay synchronized
+- [x] Supports configurable min/max (default 18-100)
+- [x] Accessible with proper labels
+- [x] Unit tests cover:
   - Slider value change updates input
   - Input value change updates slider
   - Boundary validation (min/max)
@@ -276,12 +276,12 @@
 
 **Acceptance Criteria:**
 
-- [ ] `src/components/Calculator/SavingsBreakdown.tsx` uses Shadcn Collapsible
-- [ ] Contains 3 CurrencyInput fields (RRSP, TFSA, Non-registered)
-- [ ] Shows total savings when collapsed
-- [ ] Expands to show individual account inputs
-- [ ] Values sum correctly to total
-- [ ] Unit tests cover:
+- [x] `src/components/Calculator/SavingsBreakdown.tsx` uses Shadcn Collapsible
+- [x] Contains 3 CurrencyInput fields (RRSP, TFSA, Non-registered)
+- [x] Shows total savings when collapsed
+- [x] Expands to show individual account inputs
+- [x] Values sum correctly to total
+- [x] Unit tests cover:
   - Collapse/expand functionality
   - Sum calculation accuracy
   - Individual field updates
@@ -294,12 +294,12 @@
 
 **Acceptance Criteria:**
 
-- [ ] `src/components/Calculator/InputPanel.tsx` combines all input components
-- [ ] Includes: Current Age, Annual Income, Savings Breakdown, Retirement Age, Monthly Contribution, Annual Retirement Spending
-- [ ] Accepts `onChange` callback prop for value updates
-- [ ] Debounces changes (150ms) before notifying
-- [ ] Mobile-responsive layout (stacked on small screens)
-- [ ] Unit tests cover:
+- [x] `src/components/Calculator/InputPanel.tsx` combines all input components
+- [x] Includes: Current Age, Annual Income, Savings Breakdown, Retirement Age, Monthly Contribution, Annual Retirement Spending
+- [x] Accepts `onChange` callback prop for value updates
+- [x] Debounces changes (150ms) before notifying
+- [x] Mobile-responsive layout (stacked on small screens)
+- [x] Unit tests cover:
   - All inputs render
   - Change callbacks fire correctly
   - Debouncing works as expected
@@ -312,12 +312,12 @@
 
 **Acceptance Criteria:**
 
-- [ ] `src/components/Calculator/ResultsPanel.tsx` uses Shadcn Card
-- [ ] Displays: Projected Savings, Years Until Retirement, Retirement Runway, Monthly Income, Gap/Surplus
-- [ ] Status indicator with color coding (green/amber/red)
-- [ ] Values formatted with currency/number formatting
-- [ ] Responsive layout
-- [ ] Unit tests cover:
+- [x] `src/components/Calculator/ResultsPanel.tsx` uses Shadcn Card
+- [x] Displays: Projected Savings, Years Until Retirement, Retirement Runway, Monthly Income, Gap/Surplus
+- [x] Status indicator with color coding (green/amber/red)
+- [x] Values formatted with currency/number formatting
+- [x] Responsive layout
+- [x] Unit tests cover:
   - All result values display correctly
   - Status indicator shows correct color for each state
   - Formatting applied correctly
@@ -330,11 +330,11 @@
 
 **Acceptance Criteria:**
 
-- [ ] `src/components/Calculator/StatusIndicator.tsx` created
-- [ ] Three states: on-track (green), attention-needed (amber), significant-gap (red)
-- [ ] Clear visual distinction between states
-- [ ] Accessible with screen reader text
-- [ ] Unit tests cover:
+- [x] `src/components/Calculator/StatusIndicator.tsx` created
+- [x] Three states: on-track (green), attention-needed (amber), significant-gap (red)
+- [x] Clear visual distinction between states
+- [x] Accessible with screen reader text
+- [x] Unit tests cover:
   - Correct color for each status
   - Accessibility text present
   - Status transitions work correctly
@@ -347,11 +347,11 @@
 
 **Acceptance Criteria:**
 
-- [ ] `src/components/Calculator/AssumptionsAccordion.tsx` uses Shadcn Accordion
-- [ ] Displays: Inflation rate, Expected return rate, Tax rate assumptions
-- [ ] Collapsed by default
-- [ ] Shows current values with explanatory text
-- [ ] Unit tests cover:
+- [x] `src/components/Calculator/AssumptionsAccordion.tsx` uses Shadcn Accordion
+- [x] Displays: Inflation rate, Expected return rate, Tax rate assumptions
+- [x] Collapsed by default
+- [x] Shows current values with explanatory text
+- [x] Unit tests cover:
   - Accordion expands/collapses
   - All assumption values display correctly
 
@@ -363,12 +363,12 @@
 
 **Acceptance Criteria:**
 
-- [ ] `src/components/Charts/ProjectionChart.tsx` created
-- [ ] Shows savings trajectory from current age to life expectancy
-- [ ] Highlights retirement age transition point
-- [ ] Responsive sizing
-- [ ] Accessible with data table alternative or ARIA descriptions
-- [ ] Unit tests cover:
+- [x] `src/components/Charts/ProjectionChart.tsx` created
+- [x] Shows savings trajectory from current age to life expectancy
+- [x] Highlights retirement age transition point
+- [x] Responsive sizing
+- [x] Accessible with data table alternative or ARIA descriptions
+- [x] Unit tests cover:
   - Chart renders with valid data
   - Handles edge cases (empty data, single point)
 
