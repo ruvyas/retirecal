@@ -98,10 +98,10 @@
 
 **Acceptance Criteria:**
 
-- [ ] Function `calculateFutureValue(principal, rate, years)` implemented in `src/lib/calculations/retirement.ts`
-- [ ] Returns correct value for: $100,000 @ 5% for 10 years = $162,889.46
-- [ ] Handles edge cases: zero principal, zero rate, zero years
-- [ ] Unit tests cover:
+- [x] Function `calculateFutureValue(principal, rate, years)` implemented in `src/lib/calculations/retirement.ts`
+- [x] Returns correct value for: $100,000 @ 5% for 10 years = $162,889.46
+- [x] Handles edge cases: zero principal, zero rate, zero years
+- [x] Unit tests cover:
   - Standard compound growth scenario
   - Edge case: 0 years returns principal unchanged
   - Edge case: 0 rate returns principal unchanged
@@ -116,15 +116,15 @@
 
 **Acceptance Criteria:**
 
-- [ ] Function `calculateContributionGrowth(monthlyContribution, annualRate, months)` implemented
-- [ ] Returns correct value for: $500/month @ 5% for 20 years = $205,516.83
-- [ ] Handles monthly compounding correctly
-- [ ] Unit tests cover:
+- [x] Function `calculateContributionGrowth(monthlyContribution, annualRate, months)` implemented
+- [x] Returns correct value for: $500/month @ 5% for 20 years = $205,516.83
+- [x] Handles monthly compounding correctly
+- [x] Unit tests cover:
   - Standard contribution scenario
   - Edge case: 0 contribution returns 0
   - Edge case: 0 months returns 0
   - Edge case: 0 rate returns sum of contributions
-  - Combined scenario: $50,000 initial + $300/month @ 5% for 25 years = $347,954.49
+  - Combined scenario: $50,000 initial + $300/month @ 5% for 25 years = $347,970.66
 
 ---
 
@@ -134,11 +134,11 @@
 
 **Acceptance Criteria:**
 
-- [ ] Function `calculateRetirementRunway(totalSavings, annualSpending, returnRate)` implemented
-- [ ] Uses present value of annuity formula solved for n
-- [ ] Returns correct value for: $500,000 savings, $40,000/year spending, 3% return = ~15.7 years
-- [ ] Returns Infinity or special value when savings can sustain indefinitely
-- [ ] Unit tests cover:
+- [x] Function `calculateRetirementRunway(totalSavings, annualSpending, returnRate)` implemented
+- [x] Uses present value of annuity formula solved for n
+- [x] Returns correct value for: $500,000 savings, $40,000/year spending, 3% return = ~15.7 years
+- [x] Returns Infinity or special value when savings can sustain indefinitely
+- [x] Unit tests cover:
   - Standard runway scenario
   - Edge case: spending exceeds sustainable withdrawal (rapid depletion)
   - Edge case: 0 spending returns Infinity
