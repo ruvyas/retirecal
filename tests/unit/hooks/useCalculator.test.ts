@@ -5,6 +5,7 @@ import {
   DEFAULT_INPUTS,
   DEFAULT_ASSUMPTIONS,
   computeResults,
+  generateProjectionData,
 } from '@/hooks/useCalculator'
 import type { CalculatorInputs, Assumptions } from '@/lib/types/calculator'
 
@@ -40,6 +41,12 @@ describe('useCalculator', () => {
         DEFAULT_INPUTS.savings.tfsa +
         DEFAULT_INPUTS.savings.nonRegistered
       expect(result.current.totalSavings).toBe(expectedTotal)
+    })
+
+    it('generates projection data on first render', () => {
+      const { result } = renderHook(() => useCalculator())
+      expect(result.current.projectionData).toBeDefined()
+      expect(result.current.projectionData.length).toBeGreaterThan(0)
     })
   })
 
@@ -280,9 +287,33 @@ describe('computeResults', () => {
     expect(results.monthlyIncome).toBeGreaterThan(0)
   })
 
-  it('calculates incomeGap (surplus when income > spending)', () => {
+  it('applies tax rate to monthly income', () => {
+    const resultsWithTax = computeResults(testInputs, testAssumptions)
+    const resultsNoTax = computeResults(testInputs, { ...testAssumptions, taxRate: 0 })
+
+    // With 25% tax rate, after-tax income should be 75% of gross
+    expect(resultsWithTax.monthlyIncome).toBeCloseTo(
+      resultsNoTax.monthlyIncome * (1 - testAssumptions.taxRate),
+      2
+    )
+  })
+
+  it('applies inflation rate to retirement spending', () => {
+    const resultsWithInflation = computeResults(testInputs, testAssumptions)
+    const resultsNoInflation = computeResults(testInputs, { ...testAssumptions, inflationRate: 0 })
+
+    // With inflation, the income gap should be worse (more negative or less positive)
+    expect(resultsWithInflation.incomeGap).toBeLessThan(resultsNoInflation.incomeGap)
+  })
+
+  it('calculates incomeGap using inflation-adjusted spending and after-tax income', () => {
     const results = computeResults(testInputs, testAssumptions)
-    const desiredMonthly = testInputs.annualRetirementSpending / 12
+    const yearsUntilRetirement = testInputs.retirementAge - testInputs.currentAge
+    // Spending is adjusted for inflation at retirement
+    const inflationAdjustedSpending =
+      testInputs.annualRetirementSpending *
+      Math.pow(1 + testAssumptions.inflationRate, yearsUntilRetirement)
+    const desiredMonthly = inflationAdjustedSpending / 12
     const expectedGap = results.monthlyIncome - desiredMonthly
     expect(results.incomeGap).toBeCloseTo(expectedGap, 2)
   })
@@ -379,5 +410,122 @@ describe('DEFAULT_ASSUMPTIONS', () => {
     expect(DEFAULT_ASSUMPTIONS.taxRate).toBeGreaterThan(0)
     expect(DEFAULT_ASSUMPTIONS.taxRate).toBeLessThan(1)
     expect(DEFAULT_ASSUMPTIONS.lifeExpectancy).toBeGreaterThan(60)
+  })
+})
+
+describe('generateProjectionData', () => {
+  const testInputs: CalculatorInputs = {
+    currentAge: 30,
+    retirementAge: 65,
+    annualIncome: 75000,
+    savings: { rrsp: 50000, tfsa: 30000, nonRegistered: 20000 },
+    monthlyContribution: 500,
+    annualRetirementSpending: 50000,
+  }
+
+  const testAssumptions: Assumptions = {
+    inflationRate: 0.02,
+    preRetirementReturn: 0.055,
+    retirementReturn: 0.035,
+    taxRate: 0.25,
+    lifeExpectancy: 95,
+  }
+
+  it('generates data points from current age to life expectancy', () => {
+    const data = generateProjectionData(testInputs, testAssumptions)
+
+    expect(data.length).toBeGreaterThan(0)
+    expect(data[0].age).toBe(testInputs.currentAge)
+    // Last point should be at life expectancy or when savings depleted
+    const lastAge = data[data.length - 1].age
+    expect(lastAge).toBeLessThanOrEqual(testAssumptions.lifeExpectancy)
+  })
+
+  it('marks accumulation phase points as not retirement', () => {
+    const data = generateProjectionData(testInputs, testAssumptions)
+
+    const accumulationPoints = data.filter((d) => d.age <= testInputs.retirementAge)
+    accumulationPoints.forEach((point) => {
+      expect(point.isRetirement).toBe(false)
+    })
+  })
+
+  it('marks retirement phase points as retirement', () => {
+    const data = generateProjectionData(testInputs, testAssumptions)
+
+    const retirementPoints = data.filter((d) => d.age > testInputs.retirementAge)
+    retirementPoints.forEach((point) => {
+      expect(point.isRetirement).toBe(true)
+    })
+  })
+
+  it('shows savings growing during accumulation phase', () => {
+    const data = generateProjectionData(testInputs, testAssumptions)
+
+    const accumulationPoints = data.filter((d) => d.age <= testInputs.retirementAge)
+    for (let i = 1; i < accumulationPoints.length; i++) {
+      expect(accumulationPoints[i].savings).toBeGreaterThan(accumulationPoints[i - 1].savings)
+    }
+  })
+
+  it('starts at current total savings', () => {
+    const data = generateProjectionData(testInputs, testAssumptions)
+
+    const totalSavings =
+      testInputs.savings.rrsp + testInputs.savings.tfsa + testInputs.savings.nonRegistered
+    expect(data[0].savings).toBe(totalSavings)
+  })
+
+  it('handles zero savings scenario', () => {
+    const zeroInputs = {
+      ...testInputs,
+      savings: { rrsp: 0, tfsa: 0, nonRegistered: 0 },
+      monthlyContribution: 0,
+    }
+
+    const data = generateProjectionData(zeroInputs, testAssumptions)
+
+    expect(data.length).toBeGreaterThan(0)
+    data.forEach((point) => {
+      expect(point.savings).toBeGreaterThanOrEqual(0)
+    })
+  })
+
+  it('never goes below zero savings', () => {
+    const data = generateProjectionData(testInputs, testAssumptions)
+
+    data.forEach((point) => {
+      expect(point.savings).toBeGreaterThanOrEqual(0)
+    })
+  })
+
+  it('stops generating points when savings depleted', () => {
+    // High spending that depletes savings quickly
+    const highSpendingInputs = {
+      ...testInputs,
+      annualRetirementSpending: 200000, // Very high spending
+    }
+
+    const data = generateProjectionData(highSpendingInputs, testAssumptions)
+
+    const lastPoint = data[data.length - 1]
+    // Either reaches life expectancy or savings hit 0
+    expect(lastPoint.savings === 0 || lastPoint.age === testAssumptions.lifeExpectancy).toBe(true)
+  })
+
+  it('updates when inputs change', () => {
+    const data1 = generateProjectionData(testInputs, testAssumptions)
+
+    const modifiedInputs = {
+      ...testInputs,
+      monthlyContribution: 2000, // Higher contribution
+    }
+    const data2 = generateProjectionData(modifiedInputs, testAssumptions)
+
+    // Higher contributions should result in higher savings at retirement
+    const retirementData1 = data1.find((d) => d.age === testInputs.retirementAge)
+    const retirementData2 = data2.find((d) => d.age === testInputs.retirementAge)
+
+    expect(retirementData2!.savings).toBeGreaterThan(retirementData1!.savings)
   })
 })

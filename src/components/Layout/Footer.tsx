@@ -7,7 +7,7 @@ interface FooterProps {
 export function Footer({ className }: FooterProps) {
   return (
     <footer className={cn('border-t bg-muted/50', className)}>
-      <div className="container max-w-screen-xl px-4 py-6 md:px-8">
+      <div className="container mx-auto max-w-screen-xl px-4 py-6 md:px-8">
         <div className="text-center text-sm text-muted-foreground">
           <p className="mb-2">
             <strong>Disclaimer:</strong> This calculator provides estimates for educational purposes

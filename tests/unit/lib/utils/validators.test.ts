@@ -7,6 +7,7 @@ import {
   validateInputs,
   areInputsValid,
   sanitizeInputs,
+  validateDecimalPrecision,
 } from '@/lib/utils/validators'
 import type { CalculatorInputs } from '@/lib/types/calculator'
 
@@ -382,5 +383,87 @@ describe('sanitizeInputs', () => {
     const inputs = { ...validInputs, currentAge: 50, retirementAge: 40 }
     const result = sanitizeInputs(inputs)
     expect(result.retirementAge).toBeGreaterThan(result.currentAge)
+  })
+})
+
+describe('validateDecimalPrecision', () => {
+  describe('valid values (at most 3 decimal places)', () => {
+    it('returns undefined for whole number', () => {
+      expect(validateDecimalPrecision(1, 'Rate')).toBeUndefined()
+    })
+
+    it('returns undefined for 1 decimal place', () => {
+      expect(validateDecimalPrecision(0.5, 'Rate')).toBeUndefined()
+    })
+
+    it('returns undefined for 2 decimal places', () => {
+      expect(validateDecimalPrecision(0.25, 'Rate')).toBeUndefined()
+    })
+
+    it('returns undefined for 3 decimal places', () => {
+      expect(validateDecimalPrecision(0.055, 'Rate')).toBeUndefined()
+    })
+
+    it('returns undefined for 0', () => {
+      expect(validateDecimalPrecision(0, 'Rate')).toBeUndefined()
+    })
+
+    it('returns undefined for 0.035 (3 decimals)', () => {
+      expect(validateDecimalPrecision(0.035, 'Rate')).toBeUndefined()
+    })
+  })
+
+  describe('invalid values (more than 3 decimal places)', () => {
+    it('returns error for 4 decimal places', () => {
+      expect(validateDecimalPrecision(0.0555, 'Rate')).toContain('at most 3 decimal places')
+    })
+
+    it('returns error for 5 decimal places', () => {
+      expect(validateDecimalPrecision(0.05555, 'Rate')).toContain('at most 3 decimal places')
+    })
+
+    it('includes field name in error message', () => {
+      expect(validateDecimalPrecision(0.0555, 'Inflation Rate')).toContain('Inflation Rate')
+    })
+  })
+
+  describe('custom maxDecimals parameter', () => {
+    it('allows 2 decimals when maxDecimals=2', () => {
+      expect(validateDecimalPrecision(0.05, 'Rate', 2)).toBeUndefined()
+    })
+
+    it('rejects 3 decimals when maxDecimals=2', () => {
+      expect(validateDecimalPrecision(0.055, 'Rate', 2)).toContain('at most 2 decimal places')
+    })
+
+    it('allows 4 decimals when maxDecimals=4', () => {
+      expect(validateDecimalPrecision(0.0555, 'Rate', 4)).toBeUndefined()
+    })
+  })
+
+  describe('floating point edge cases', () => {
+    it('handles values from floating point arithmetic', () => {
+      // 0.1 + 0.2 = 0.30000000000000004 in JavaScript
+      const result = 0.1 + 0.2
+      expect(validateDecimalPrecision(result, 'Rate')).toBeUndefined()
+    })
+
+    it('handles very small valid values', () => {
+      expect(validateDecimalPrecision(0.001, 'Rate')).toBeUndefined()
+    })
+
+    it('handles negative values with valid precision', () => {
+      expect(validateDecimalPrecision(-0.055, 'Rate')).toBeUndefined()
+    })
+
+    it('rejects negative values with invalid precision', () => {
+      expect(validateDecimalPrecision(-0.0555, 'Rate')).toContain('at most 3 decimal places')
+    })
+
+    it('handles division results', () => {
+      // 5.5 / 100 = 0.055 (typical percentage conversion)
+      const result = 5.5 / 100
+      expect(validateDecimalPrecision(result, 'Rate')).toBeUndefined()
+    })
   })
 })

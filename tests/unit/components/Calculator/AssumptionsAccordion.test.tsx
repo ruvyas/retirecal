@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AssumptionsAccordion } from '../../../../src/components/Calculator/AssumptionsAccordion'
 import type { Assumptions } from '../../../../src/lib/types/calculator'
@@ -12,16 +12,28 @@ const mockAssumptions: Assumptions = {
   lifeExpectancy: 95,
 }
 
+const mockOnChange = vi.fn()
+
 describe('AssumptionsAccordion', () => {
+  beforeEach(() => {
+    mockOnChange.mockClear()
+  })
+
   describe('rendering', () => {
     it('renders without crashing', () => {
-      render(<AssumptionsAccordion assumptions={mockAssumptions} />)
+      render(
+        <AssumptionsAccordion assumptions={mockAssumptions} onAssumptionChange={mockOnChange} />
+      )
       expect(screen.getByText('Calculation Assumptions')).toBeInTheDocument()
     })
 
     it('applies custom className', () => {
       const { container } = render(
-        <AssumptionsAccordion assumptions={mockAssumptions} className="custom-class" />
+        <AssumptionsAccordion
+          assumptions={mockAssumptions}
+          onAssumptionChange={mockOnChange}
+          className="custom-class"
+        />
       )
       expect(container.firstChild).toHaveClass('custom-class')
     })
@@ -29,84 +41,140 @@ describe('AssumptionsAccordion', () => {
 
   describe('expand/collapse behavior', () => {
     it('is collapsed by default', () => {
-      render(<AssumptionsAccordion assumptions={mockAssumptions} />)
-      // Content should not be present initially (accordion removes content from DOM when collapsed)
-      expect(screen.queryByText('Inflation Rate')).not.toBeInTheDocument()
+      render(
+        <AssumptionsAccordion assumptions={mockAssumptions} onAssumptionChange={mockOnChange} />
+      )
+      expect(screen.queryByLabelText('Inflation Rate')).not.toBeInTheDocument()
     })
 
     it('expands when trigger is clicked', async () => {
       const user = userEvent.setup()
-      render(<AssumptionsAccordion assumptions={mockAssumptions} />)
+      render(
+        <AssumptionsAccordion assumptions={mockAssumptions} onAssumptionChange={mockOnChange} />
+      )
 
       await user.click(screen.getByText('Calculation Assumptions'))
 
-      expect(screen.getByText('Inflation Rate')).toBeInTheDocument()
-      expect(screen.getByText('Pre-Retirement Return')).toBeInTheDocument()
-      expect(screen.getByText('Retirement Return')).toBeInTheDocument()
-      expect(screen.getByText('Tax Rate')).toBeInTheDocument()
-      expect(screen.getByText('Life Expectancy')).toBeInTheDocument()
+      expect(screen.getByLabelText('Inflation Rate')).toBeInTheDocument()
+      expect(screen.getByLabelText('Pre-Retirement Return')).toBeInTheDocument()
+      expect(screen.getByLabelText('Retirement Return')).toBeInTheDocument()
+      expect(screen.getByLabelText('Tax Rate')).toBeInTheDocument()
+      expect(screen.getByLabelText('Life Expectancy')).toBeInTheDocument()
     })
 
     it('collapses when trigger is clicked again', async () => {
       const user = userEvent.setup()
-      render(<AssumptionsAccordion assumptions={mockAssumptions} />)
+      render(
+        <AssumptionsAccordion assumptions={mockAssumptions} onAssumptionChange={mockOnChange} />
+      )
 
-      // Expand
       await user.click(screen.getByText('Calculation Assumptions'))
-      expect(screen.getByText('Inflation Rate')).toBeInTheDocument()
+      expect(screen.getByLabelText('Inflation Rate')).toBeInTheDocument()
 
-      // Collapse
       await user.click(screen.getByText('Calculation Assumptions'))
-      expect(screen.queryByText('Inflation Rate')).not.toBeInTheDocument()
+      expect(screen.queryByLabelText('Inflation Rate')).not.toBeInTheDocument()
     })
   })
 
-  describe('assumption values display', () => {
-    it('displays inflation rate as percentage', async () => {
+  describe('assumption input values', () => {
+    it('displays inflation rate as percentage value', async () => {
       const user = userEvent.setup()
-      render(<AssumptionsAccordion assumptions={mockAssumptions} />)
+      render(
+        <AssumptionsAccordion assumptions={mockAssumptions} onAssumptionChange={mockOnChange} />
+      )
 
       await user.click(screen.getByText('Calculation Assumptions'))
-      expect(screen.getByText('2.0%')).toBeInTheDocument()
+      const input = screen.getByLabelText('Inflation Rate') as HTMLInputElement
+      expect(input.value).toBe('2')
     })
 
-    it('displays pre-retirement return as percentage', async () => {
+    it('displays pre-retirement return as percentage value', async () => {
       const user = userEvent.setup()
-      render(<AssumptionsAccordion assumptions={mockAssumptions} />)
+      render(
+        <AssumptionsAccordion assumptions={mockAssumptions} onAssumptionChange={mockOnChange} />
+      )
 
       await user.click(screen.getByText('Calculation Assumptions'))
-      expect(screen.getByText('5.5%')).toBeInTheDocument()
-    })
-
-    it('displays retirement return as percentage', async () => {
-      const user = userEvent.setup()
-      render(<AssumptionsAccordion assumptions={mockAssumptions} />)
-
-      await user.click(screen.getByText('Calculation Assumptions'))
-      expect(screen.getByText('3.5%')).toBeInTheDocument()
-    })
-
-    it('displays tax rate as percentage', async () => {
-      const user = userEvent.setup()
-      render(<AssumptionsAccordion assumptions={mockAssumptions} />)
-
-      await user.click(screen.getByText('Calculation Assumptions'))
-      expect(screen.getByText('25.0%')).toBeInTheDocument()
+      const input = screen.getByLabelText('Pre-Retirement Return') as HTMLInputElement
+      expect(input.value).toBe('5.5')
     })
 
     it('displays life expectancy in years', async () => {
       const user = userEvent.setup()
-      render(<AssumptionsAccordion assumptions={mockAssumptions} />)
+      render(
+        <AssumptionsAccordion assumptions={mockAssumptions} onAssumptionChange={mockOnChange} />
+      )
 
       await user.click(screen.getByText('Calculation Assumptions'))
-      expect(screen.getByText('95 years')).toBeInTheDocument()
+      const input = screen.getByLabelText('Life Expectancy') as HTMLInputElement
+      expect(input.value).toBe('95')
+    })
+
+    it('rounds floating point artifacts to clean display values', async () => {
+      const user = userEvent.setup()
+      // Simulate a value with floating point artifact
+      const assumptionsWithArtifact: Assumptions = {
+        ...mockAssumptions,
+        preRetirementReturn: 0.07000000000000001, // floating point artifact (7%)
+      }
+      render(
+        <AssumptionsAccordion
+          assumptions={assumptionsWithArtifact}
+          onAssumptionChange={mockOnChange}
+        />
+      )
+
+      await user.click(screen.getByText('Calculation Assumptions'))
+      const input = screen.getByLabelText('Pre-Retirement Return') as HTMLInputElement
+      // Should display "7" not "7.000000000000001"
+      expect(input.value).toBe('7')
+    })
+  })
+
+  describe('input interactions', () => {
+    it('calls onAssumptionChange when inflation rate is changed', async () => {
+      const user = userEvent.setup()
+      render(
+        <AssumptionsAccordion assumptions={mockAssumptions} onAssumptionChange={mockOnChange} />
+      )
+
+      await user.click(screen.getByText('Calculation Assumptions'))
+      const input = screen.getByLabelText('Inflation Rate') as HTMLInputElement
+
+      // Type a character to trigger change
+      await user.type(input, '5')
+
+      // Verify the handler was called with the correct key
+      expect(mockOnChange).toHaveBeenCalled()
+      expect(mockOnChange.mock.calls[0][0]).toBe('inflationRate')
+      expect(typeof mockOnChange.mock.calls[0][1]).toBe('number')
+    })
+
+    it('calls onAssumptionChange when life expectancy is changed', async () => {
+      const user = userEvent.setup()
+      render(
+        <AssumptionsAccordion assumptions={mockAssumptions} onAssumptionChange={mockOnChange} />
+      )
+
+      await user.click(screen.getByText('Calculation Assumptions'))
+      const input = screen.getByLabelText('Life Expectancy') as HTMLInputElement
+
+      // Type a character to trigger change
+      await user.type(input, '0')
+
+      // Verify the handler was called with the correct key
+      expect(mockOnChange).toHaveBeenCalled()
+      expect(mockOnChange.mock.calls[0][0]).toBe('lifeExpectancy')
+      expect(typeof mockOnChange.mock.calls[0][1]).toBe('number')
     })
   })
 
   describe('descriptions', () => {
     it('displays description for each assumption', async () => {
       const user = userEvent.setup()
-      render(<AssumptionsAccordion assumptions={mockAssumptions} />)
+      render(
+        <AssumptionsAccordion assumptions={mockAssumptions} onAssumptionChange={mockOnChange} />
+      )
 
       await user.click(screen.getByText('Calculation Assumptions'))
 
@@ -115,6 +183,82 @@ describe('AssumptionsAccordion', () => {
       expect(screen.getByText(/conservative return rate/i)).toBeInTheDocument()
       expect(screen.getByText(/blended tax rate/i)).toBeInTheDocument()
       expect(screen.getByText(/planning horizon/i)).toBeInTheDocument()
+    })
+  })
+
+  describe('decimal precision limit (3 decimals in display value)', () => {
+    it('allows values with up to 3 decimals and calls onAssumptionChange', async () => {
+      const user = userEvent.setup()
+      render(
+        <AssumptionsAccordion assumptions={mockAssumptions} onAssumptionChange={mockOnChange} />
+      )
+
+      await user.click(screen.getByText('Calculation Assumptions'))
+      const input = screen.getByLabelText('Inflation Rate') as HTMLInputElement
+
+      mockOnChange.mockClear()
+
+      // Enter a value with 3 decimals in display (5.555%)
+      fireEvent.change(input, { target: { value: '5.555' } })
+
+      // Should call onChange (3 decimals is valid)
+      expect(mockOnChange).toHaveBeenCalledWith('inflationRate', expect.closeTo(0.05555, 10))
+    })
+
+    it('silently blocks values with 4+ decimals', async () => {
+      const user = userEvent.setup()
+      render(
+        <AssumptionsAccordion assumptions={mockAssumptions} onAssumptionChange={mockOnChange} />
+      )
+
+      await user.click(screen.getByText('Calculation Assumptions'))
+      const input = screen.getByLabelText('Inflation Rate') as HTMLInputElement
+
+      mockOnChange.mockClear()
+
+      // Enter a value with 4 decimals in display (5.5555%)
+      fireEvent.change(input, { target: { value: '5.5555' } })
+
+      // Should NOT call onChange (4 decimals is blocked)
+      expect(mockOnChange).not.toHaveBeenCalled()
+
+      // No error message should be displayed (silent blocking)
+      expect(screen.queryByText(/decimal/i)).not.toBeInTheDocument()
+    })
+
+    it('allows 2-decimal values', async () => {
+      const user = userEvent.setup()
+      render(
+        <AssumptionsAccordion assumptions={mockAssumptions} onAssumptionChange={mockOnChange} />
+      )
+
+      await user.click(screen.getByText('Calculation Assumptions'))
+      const input = screen.getByLabelText('Inflation Rate') as HTMLInputElement
+
+      mockOnChange.mockClear()
+
+      // Enter a value with 2 decimals (5.55%)
+      fireEvent.change(input, { target: { value: '5.55' } })
+
+      // Should call onChange
+      expect(mockOnChange).toHaveBeenCalledWith('inflationRate', 0.0555)
+    })
+
+    it('does not limit decimals for life expectancy (non-percent field)', async () => {
+      const user = userEvent.setup()
+      render(
+        <AssumptionsAccordion assumptions={mockAssumptions} onAssumptionChange={mockOnChange} />
+      )
+
+      await user.click(screen.getByText('Calculation Assumptions'))
+      const input = screen.getByLabelText('Life Expectancy') as HTMLInputElement
+
+      mockOnChange.mockClear()
+
+      // Enter a value - should work without decimal validation
+      fireEvent.change(input, { target: { value: '90' } })
+
+      expect(mockOnChange).toHaveBeenCalledWith('lifeExpectancy', 90)
     })
   })
 })

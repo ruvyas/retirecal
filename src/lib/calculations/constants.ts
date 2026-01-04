@@ -34,6 +34,7 @@ export const VALIDATION_BOUNDS = {
   monthlyContribution: { min: 0, max: 100_000 },
   annualRetirementSpending: { min: 0, max: 10_000_000 },
   rates: { min: 0, max: 0.25 },
+  taxRate: { min: 0, max: 0.5 },
   lifeExpectancy: { min: 50, max: 120 },
 } as const
 

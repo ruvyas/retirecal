@@ -18,6 +18,8 @@ export interface ProjectionDataPoint {
 interface ProjectionChartProps {
   data: ProjectionDataPoint[]
   retirementAge: number
+  currentAge: number
+  lifeExpectancy: number
   className?: string
 }
 
@@ -28,7 +30,13 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function ProjectionChart({ data, retirementAge, className }: ProjectionChartProps) {
+export function ProjectionChart({
+  data,
+  retirementAge,
+  currentAge,
+  lifeExpectancy,
+  className,
+}: ProjectionChartProps) {
   // Format currency for Y-axis
   const formatYAxis = (value: number) => {
     if (value >= 1000000) {
@@ -68,7 +76,7 @@ export function ProjectionChart({ data, retirementAge, className }: ProjectionCh
         <AreaChart
           data={data}
           accessibilityLayer
-          margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+          margin={{ top: 30, right: 10, left: 0, bottom: 0 }}
         >
           <defs>
             <linearGradient id="savingsGradient" x1="0" y1="0" x2="0" y2="1">
@@ -79,6 +87,9 @@ export function ProjectionChart({ data, retirementAge, className }: ProjectionCh
           <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis
             dataKey="age"
+            type="number"
+            domain={[currentAge, lifeExpectancy]}
+            allowDecimals={false}
             tickLine={false}
             axisLine={false}
             tickMargin={8}

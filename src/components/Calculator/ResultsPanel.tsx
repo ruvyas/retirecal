@@ -1,11 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusIndicator, deriveStatus } from './StatusIndicator'
+import { ProjectionChart, type ProjectionDataPoint } from '@/components/Charts/ProjectionChart'
 import { cn } from '@/lib/utils'
 import { formatCurrency, formatNumber, formatYears } from '@/lib/formatters'
 import type { CalculatorResults } from '@/lib/types/calculator'
 
 interface ResultsPanelProps {
   results: CalculatorResults | null
+  projectionData?: ProjectionDataPoint[]
+  retirementAge?: number
+  currentAge?: number
+  lifeExpectancy?: number
   isLoading?: boolean
   className?: string
 }
@@ -48,11 +53,20 @@ function LoadingSkeleton() {
           <div key={i} className="h-28 animate-pulse rounded-xl bg-muted" />
         ))}
       </div>
+      <div className="h-64 animate-pulse rounded-xl bg-muted" />
     </div>
   )
 }
 
-export function ResultsPanel({ results, isLoading = false, className }: ResultsPanelProps) {
+export function ResultsPanel({
+  results,
+  projectionData,
+  retirementAge,
+  currentAge,
+  lifeExpectancy,
+  isLoading = false,
+  className,
+}: ResultsPanelProps) {
   if (isLoading || !results) {
     return (
       <div className={cn('space-y-4', className)}>
@@ -114,6 +128,26 @@ export function ResultsPanel({ results, isLoading = false, className }: ResultsP
           variant={gapVariant}
         />
       </div>
+
+      {projectionData &&
+        retirementAge !== undefined &&
+        currentAge !== undefined &&
+        lifeExpectancy !== undefined && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold">Savings Projection</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ProjectionChart
+                data={projectionData}
+                retirementAge={retirementAge}
+                currentAge={currentAge}
+                lifeExpectancy={lifeExpectancy}
+                className="w-full"
+              />
+            </CardContent>
+          </Card>
+        )}
     </div>
   )
 }

@@ -409,6 +409,68 @@
 
 ---
 
+### TICKET-039: Integrate ProjectionChart into Calculator
+
+**Description:** Integrate the ProjectionChart component into the Calculator/ResultsPanel to display savings growth visualization.
+
+**Acceptance Criteria:**
+
+- [x] ProjectionChart imported and rendered in ResultsPanel or Calculator
+- [x] Chart receives projection data from useCalculator hook
+- [x] Chart updates in real-time when inputs change
+- [x] Proper loading/empty state handling
+- [x] Responsive layout with chart sizing
+- [x] Unit tests verify chart integration
+
+---
+
+### TICKET-040: Add Calculation Breakdown Values to Results
+
+**Description:** Extend CalculatorResults to include intermediate calculation values needed for formula explanations.
+
+**Acceptance Criteria:**
+
+- [ ] Update `CalculatorResults` type in `src/lib/types/calculator.ts` with:
+  - `savingsGrowth`: Growth of initial savings
+  - `contributionGrowth`: Growth from monthly contributions
+  - `grossMonthlyIncome`: Pre-tax sustainable income
+  - `inflationAdjustedSpending`: Spending adjusted for inflation
+- [ ] Update `computeResults()` in `src/hooks/useCalculator.ts` to return these values
+- [ ] Unit tests verify breakdown values are calculated correctly
+
+---
+
+### TICKET-041: Create Formula Tooltip Component
+
+**Description:** Create a reusable tooltip component that displays calculation breakdowns.
+
+**Acceptance Criteria:**
+
+- [ ] `src/components/Calculator/FormulaTooltip.tsx` created
+- [ ] Uses Shadcn Tooltip component
+- [ ] Displays step-by-step calculation with values
+- [ ] Formats numbers as currency where appropriate
+- [ ] Accessible with keyboard navigation
+- [ ] Unit tests verify tooltip renders correctly
+
+---
+
+### TICKET-042: Add Tooltips to ResultsPanel Values
+
+**Description:** Wrap result values in tooltips showing how each was calculated.
+
+**Acceptance Criteria:**
+
+- [ ] Projected Savings shows: initial growth + contribution growth breakdown
+- [ ] Sustainable Monthly Income shows: portfolio × rate ÷ 12 × (1-tax)
+- [ ] Income Gap shows: income - inflation-adjusted spending breakdown
+- [ ] Retirement Runway shows: years until savings depleted
+- [ ] Tooltips appear on hover with calculation details
+- [ ] Mobile-friendly (tap to show on touch devices)
+- [ ] Unit tests verify tooltips display correct values
+
+---
+
 ### TICKET-025: Implement Input Validation
 
 **Description:** Add validation logic for all user inputs.

@@ -21,44 +21,49 @@ const mockData: ProjectionDataPoint[] = [
   { age: 90, savings: 150000, isRetirement: true },
 ]
 
+const defaultProps = {
+  data: mockData,
+  retirementAge: 65,
+  currentAge: 30,
+  lifeExpectancy: 90,
+}
+
 describe('ProjectionChart', () => {
   describe('rendering', () => {
     it('renders without crashing', () => {
-      render(<ProjectionChart data={mockData} retirementAge={65} />)
+      render(<ProjectionChart {...defaultProps} />)
       // Chart should render - check for accessible table
       expect(screen.getByRole('table')).toBeInTheDocument()
     })
 
     it('applies custom className', () => {
-      const { container } = render(
-        <ProjectionChart data={mockData} retirementAge={65} className="custom-class" />
-      )
+      const { container } = render(<ProjectionChart {...defaultProps} className="custom-class" />)
       expect(container.firstChild).toHaveClass('custom-class')
     })
   })
 
   describe('empty state', () => {
     it('displays message when data is empty', () => {
-      render(<ProjectionChart data={[]} retirementAge={65} />)
+      render(<ProjectionChart {...defaultProps} data={[]} />)
       expect(screen.getByText('No projection data available')).toBeInTheDocument()
     })
 
     it('displays message when data is null-ish', () => {
       render(
-        <ProjectionChart data={undefined as unknown as ProjectionDataPoint[]} retirementAge={65} />
+        <ProjectionChart {...defaultProps} data={undefined as unknown as ProjectionDataPoint[]} />
       )
       expect(screen.getByText('No projection data available')).toBeInTheDocument()
     })
 
     it('has appropriate aria-label for empty state', () => {
-      render(<ProjectionChart data={[]} retirementAge={65} />)
+      render(<ProjectionChart {...defaultProps} data={[]} />)
       expect(screen.getByRole('img', { name: /no projection data/i })).toBeInTheDocument()
     })
   })
 
   describe('accessibility', () => {
     it('renders accessible data table for screen readers', () => {
-      render(<ProjectionChart data={mockData} retirementAge={65} />)
+      render(<ProjectionChart {...defaultProps} />)
 
       const table = screen.getByRole('table')
       expect(table).toBeInTheDocument()
@@ -66,13 +71,13 @@ describe('ProjectionChart', () => {
     })
 
     it('includes table caption', () => {
-      render(<ProjectionChart data={mockData} retirementAge={65} />)
+      render(<ProjectionChart {...defaultProps} />)
 
       expect(screen.getByText('Savings projection by age')).toBeInTheDocument()
     })
 
     it('displays data rows in accessible table', () => {
-      render(<ProjectionChart data={mockData} retirementAge={65} />)
+      render(<ProjectionChart {...defaultProps} />)
 
       // Check for column headers
       expect(screen.getByRole('columnheader', { name: 'Age' })).toBeInTheDocument()
@@ -86,7 +91,7 @@ describe('ProjectionChart', () => {
     })
 
     it('shows phase as Accumulation before retirement', () => {
-      render(<ProjectionChart data={mockData} retirementAge={65} />)
+      render(<ProjectionChart {...defaultProps} />)
 
       // Find cells with "Accumulation" text
       const accumulationCells = screen.getAllByRole('cell', { name: 'Accumulation' })
@@ -94,7 +99,7 @@ describe('ProjectionChart', () => {
     })
 
     it('shows phase as Retirement after retirement age', () => {
-      render(<ProjectionChart data={mockData} retirementAge={65} />)
+      render(<ProjectionChart {...defaultProps} />)
 
       // Find cells with "Retirement" text
       const retirementCells = screen.getAllByRole('cell', { name: 'Retirement' })
@@ -106,7 +111,7 @@ describe('ProjectionChart', () => {
     it('formats savings values in accessible table', () => {
       const smallData: ProjectionDataPoint[] = [{ age: 30, savings: 1234567, isRetirement: false }]
 
-      render(<ProjectionChart data={smallData} retirementAge={65} />)
+      render(<ProjectionChart {...defaultProps} data={smallData} />)
 
       // Should format as currency with commas
       expect(screen.getByText('$1,234,567')).toBeInTheDocument()
@@ -117,7 +122,7 @@ describe('ProjectionChart', () => {
     it('handles single data point', () => {
       const singlePoint: ProjectionDataPoint[] = [{ age: 30, savings: 100000, isRetirement: false }]
 
-      render(<ProjectionChart data={singlePoint} retirementAge={65} />)
+      render(<ProjectionChart {...defaultProps} data={singlePoint} />)
 
       expect(screen.getByRole('table')).toBeInTheDocument()
     })
@@ -128,7 +133,7 @@ describe('ProjectionChart', () => {
         { age: 65, savings: 0, isRetirement: true },
       ]
 
-      render(<ProjectionChart data={zeroData} retirementAge={65} />)
+      render(<ProjectionChart {...defaultProps} data={zeroData} />)
 
       expect(screen.getByRole('table')).toBeInTheDocument()
       expect(screen.getAllByText('$0')).toHaveLength(2)
@@ -137,7 +142,7 @@ describe('ProjectionChart', () => {
     it('handles negative savings (debt scenario)', () => {
       const negativeData: ProjectionDataPoint[] = [{ age: 80, savings: -50000, isRetirement: true }]
 
-      render(<ProjectionChart data={negativeData} retirementAge={65} />)
+      render(<ProjectionChart {...defaultProps} data={negativeData} />)
 
       expect(screen.getByRole('table')).toBeInTheDocument()
     })
@@ -145,7 +150,7 @@ describe('ProjectionChart', () => {
     it('handles large savings values', () => {
       const largeData: ProjectionDataPoint[] = [{ age: 65, savings: 10000000, isRetirement: true }]
 
-      render(<ProjectionChart data={largeData} retirementAge={65} />)
+      render(<ProjectionChart {...defaultProps} data={largeData} />)
 
       expect(screen.getByRole('table')).toBeInTheDocument()
       expect(screen.getByText('$10,000,000')).toBeInTheDocument()

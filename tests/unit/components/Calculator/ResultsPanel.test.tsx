@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { ResultsPanel } from '../../../../src/components/Calculator/ResultsPanel'
 import type { CalculatorResults } from '../../../../src/lib/types/calculator'
+import type { ProjectionDataPoint } from '../../../../src/components/Charts/ProjectionChart'
 
 const mockResults: CalculatorResults = {
   projectedSavings: 1500000,
@@ -10,6 +11,14 @@ const mockResults: CalculatorResults = {
   monthlyIncome: 5000,
   incomeGap: 500,
 }
+
+const mockProjectionData: ProjectionDataPoint[] = [
+  { age: 30, savings: 100000, isRetirement: false },
+  { age: 45, savings: 500000, isRetirement: false },
+  { age: 65, savings: 1500000, isRetirement: false },
+  { age: 80, savings: 1000000, isRetirement: true },
+  { age: 95, savings: 200000, isRetirement: true },
+]
 
 const negativeGapResults: CalculatorResults = {
   ...mockResults,
@@ -125,6 +134,90 @@ describe('ResultsPanel', () => {
       const infiniteResults = { ...mockResults, retirementRunway: Infinity }
       render(<ResultsPanel results={infiniteResults} />)
       expect(screen.getByText('Indefinitely')).toBeInTheDocument()
+    })
+  })
+
+  describe('projection chart integration', () => {
+    it('renders projection chart when data is provided', () => {
+      render(
+        <ResultsPanel
+          results={mockResults}
+          projectionData={mockProjectionData}
+          retirementAge={65}
+          currentAge={30}
+          lifeExpectancy={95}
+        />
+      )
+
+      expect(screen.getByText('Savings Projection')).toBeInTheDocument()
+    })
+
+    it('does not render chart when projectionData is undefined', () => {
+      render(<ResultsPanel results={mockResults} />)
+
+      expect(screen.queryByText('Savings Projection')).not.toBeInTheDocument()
+    })
+
+    it('does not render chart when retirementAge is undefined', () => {
+      render(
+        <ResultsPanel
+          results={mockResults}
+          projectionData={mockProjectionData}
+          currentAge={30}
+          lifeExpectancy={95}
+        />
+      )
+
+      expect(screen.queryByText('Savings Projection')).not.toBeInTheDocument()
+    })
+
+    it('does not render chart when currentAge is undefined', () => {
+      render(
+        <ResultsPanel
+          results={mockResults}
+          projectionData={mockProjectionData}
+          retirementAge={65}
+          lifeExpectancy={95}
+        />
+      )
+
+      expect(screen.queryByText('Savings Projection')).not.toBeInTheDocument()
+    })
+
+    it('does not render chart when lifeExpectancy is undefined', () => {
+      render(
+        <ResultsPanel
+          results={mockResults}
+          projectionData={mockProjectionData}
+          retirementAge={65}
+          currentAge={30}
+        />
+      )
+
+      expect(screen.queryByText('Savings Projection')).not.toBeInTheDocument()
+    })
+
+    it('renders chart with accessible table', () => {
+      render(
+        <ResultsPanel
+          results={mockResults}
+          projectionData={mockProjectionData}
+          retirementAge={65}
+          currentAge={30}
+          lifeExpectancy={95}
+        />
+      )
+
+      // ProjectionChart should render its accessible table
+      expect(screen.getByRole('table')).toBeInTheDocument()
+    })
+
+    it('includes chart in loading skeleton', () => {
+      const { container } = render(<ResultsPanel results={null} isLoading />)
+
+      // Should have multiple skeleton elements including one for chart
+      const skeletons = container.querySelectorAll('.animate-pulse')
+      expect(skeletons.length).toBeGreaterThan(5) // Cards + chart skeleton
     })
   })
 })

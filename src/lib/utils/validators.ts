@@ -152,6 +152,27 @@ export function areInputsValid(inputs: CalculatorInputs): boolean {
 }
 
 /**
+ * Validate that a decimal value has at most the specified decimal places
+ * Returns error message if invalid, undefined if valid
+ */
+export function validateDecimalPrecision(
+  value: number,
+  fieldName: string,
+  maxDecimals: number = 3
+): string | undefined {
+  const factor = Math.pow(10, maxDecimals)
+  const rounded = Math.round(value * factor) / factor
+  // Use a relative tolerance that handles floating point arithmetic errors
+  // 1e-10 is small enough to catch intentional precision violations while
+  // accommodating typical floating point representation errors
+  const tolerance = 1e-10
+  if (Math.abs(value - rounded) > tolerance) {
+    return `${fieldName} must have at most ${maxDecimals} decimal places`
+  }
+  return undefined
+}
+
+/**
  * Sanitize inputs to prevent calculation crashes
  * Returns safe values even for invalid inputs by clamping to valid ranges
  */
