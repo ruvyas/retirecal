@@ -7,7 +7,7 @@ import { useReducer, useMemo, useCallback } from 'react'
 import {
   calculateFutureValue,
   calculateContributionGrowth,
-  calculateRetirementRunway,
+  calculateInflationAdjustedRunway,
   calculateSustainableIncome,
 } from '@/lib/calculations/retirement'
 import type { ProjectionDataPoint } from '@/components/Charts/ProjectionChart'
@@ -31,7 +31,11 @@ const DEFAULT_INPUTS: CalculatorInputs = {
     tfsa: 30000,
     nonRegistered: 20000,
   },
-  monthlyContribution: 500,
+  contributions: {
+    rrsp: 200,
+    tfsa: 200,
+    nonRegistered: 100,
+  },
   annualRetirementSpending: 50000,
 }
 
@@ -85,6 +89,7 @@ function calculatorReducer(state: CalculatorState, action: CalculatorAction): Ca
 /**
  * Generate year-by-year projection data for the chart
  * Shows savings growth through accumulation and drawdown phases
+ * Includes detailed data for enhanced tooltips
  */
 function generateProjectionData(
   inputs: CalculatorInputs,
@@ -93,8 +98,15 @@ function generateProjectionData(
   const safeInputs = sanitizeInputs(inputs)
   const totalSavings =
     safeInputs.savings.rrsp + safeInputs.savings.tfsa + safeInputs.savings.nonRegistered
+  const monthlyContribution =
+    safeInputs.contributions.rrsp +
+    safeInputs.contributions.tfsa +
+    safeInputs.contributions.nonRegistered
+  const annualContribution = monthlyContribution * 12
 
   const data: ProjectionDataPoint[] = []
+  let cumulativeContributions = 0
+  let previousSavings = totalSavings
 
   // Accumulation phase: current age to retirement
   for (let age = safeInputs.currentAge; age <= safeInputs.retirementAge; age++) {
@@ -107,16 +119,34 @@ function generateProjectionData(
       yearsFromNow
     )
     const contributionGrowth = calculateContributionGrowth(
-      safeInputs.monthlyContribution,
+      monthlyContribution,
       assumptions.preRetirementReturn,
       monthsFromNow
     )
 
+    const currentTotalSavings = savingsGrowth + contributionGrowth
+    cumulativeContributions = annualContribution * yearsFromNow
+
+    // Calculate growth for this year
+    const growthAmount =
+      age === safeInputs.currentAge ? 0 : currentTotalSavings - previousSavings - annualContribution
+
     data.push({
       age,
-      savings: savingsGrowth + contributionGrowth,
+      savings: currentTotalSavings,
       isRetirement: false,
+      phase: 'accumulation',
+      annualContribution: age === safeInputs.currentAge ? 0 : annualContribution,
+      annualWithdrawal: 0,
+      originalWithdrawal: 0,
+      growthAmount: Math.max(0, growthAmount),
+      returnRate: assumptions.preRetirementReturn,
+      postTaxIncome: 0,
+      cumulativeContributions,
+      previousSavings,
     })
+
+    previousSavings = currentTotalSavings
   }
 
   // Retirement phase: retirement to life expectancy
@@ -130,20 +160,38 @@ function generateProjectionData(
 
   let currentSavings = savingsAtRetirement
   let currentWithdrawal = inflationAdjustedSpending
+  previousSavings = savingsAtRetirement
 
   for (let age = safeInputs.retirementAge + 1; age <= assumptions.lifeExpectancy; age++) {
+    const savingsBeforeWithdrawal = currentSavings * (1 + assumptions.retirementReturn)
+    const growthAmount = savingsBeforeWithdrawal - previousSavings
+
     // Apply return and subtract inflation-adjusted withdrawal
-    currentSavings = currentSavings * (1 + assumptions.retirementReturn) - currentWithdrawal
+    currentSavings = savingsBeforeWithdrawal - currentWithdrawal
     currentSavings = Math.max(0, currentSavings) // Don't go negative
 
-    // Increase withdrawal by inflation each year
-    currentWithdrawal = currentWithdrawal * (1 + assumptions.inflationRate)
+    // Calculate post-tax income (withdrawal after tax)
+    const postTaxIncome = currentWithdrawal * (1 - assumptions.taxRate)
 
     data.push({
       age,
       savings: currentSavings,
       isRetirement: true,
+      phase: 'retirement',
+      annualContribution: 0,
+      annualWithdrawal: currentWithdrawal,
+      originalWithdrawal: safeInputs.annualRetirementSpending,
+      growthAmount: Math.max(0, growthAmount),
+      returnRate: assumptions.retirementReturn,
+      postTaxIncome,
+      cumulativeContributions,
+      previousSavings,
     })
+
+    previousSavings = currentSavings
+
+    // Increase withdrawal by inflation each year
+    currentWithdrawal = currentWithdrawal * (1 + assumptions.inflationRate)
 
     // Stop if savings depleted
     if (currentSavings === 0) break
@@ -162,6 +210,10 @@ function computeResults(inputs: CalculatorInputs, assumptions: Assumptions): Cal
 
   const totalSavings =
     safeInputs.savings.rrsp + safeInputs.savings.tfsa + safeInputs.savings.nonRegistered
+  const monthlyContribution =
+    safeInputs.contributions.rrsp +
+    safeInputs.contributions.tfsa +
+    safeInputs.contributions.nonRegistered
   const yearsUntilRetirement = safeInputs.retirementAge - safeInputs.currentAge
   const monthsUntilRetirement = yearsUntilRetirement * 12
 
@@ -174,7 +226,7 @@ function computeResults(inputs: CalculatorInputs, assumptions: Assumptions): Cal
 
   // Growth of future contributions until retirement
   const contributionGrowth = calculateContributionGrowth(
-    safeInputs.monthlyContribution,
+    monthlyContribution,
     assumptions.preRetirementReturn,
     monthsUntilRetirement
   )
@@ -199,22 +251,28 @@ function computeResults(inputs: CalculatorInputs, assumptions: Assumptions): Cal
   // Apply tax rate to get after-tax income
   const monthlyIncome = grossMonthlyIncome * (1 - assumptions.taxRate)
 
-  // Calculate runway using inflation-adjusted spending
-  const retirementRunway = calculateRetirementRunway(
+  // Calculate runway using inflation-adjusted spending with proper inflation accounting
+  const retirementRunway = calculateInflationAdjustedRunway(
     projectedSavings,
     inflationAdjustedSpending,
-    assumptions.retirementReturn
+    assumptions.retirementReturn,
+    assumptions.inflationRate
   )
 
   // Calculate income gap using inflation-adjusted spending (monthly)
   const desiredMonthlySpending = inflationAdjustedSpending / 12
   const incomeGap = monthlyIncome - desiredMonthlySpending
 
+  // Calculate monthly income in today's dollars (discount back from retirement)
+  const monthlyIncomeToday =
+    monthlyIncome / Math.pow(1 + assumptions.inflationRate, yearsUntilRetirement)
+
   return {
     projectedSavings,
     yearsUntilRetirement,
     retirementRunway,
     monthlyIncome,
+    monthlyIncomeToday,
     incomeGap,
   }
 }

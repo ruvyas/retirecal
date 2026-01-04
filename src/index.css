@@ -128,5 +128,42 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+    /* Base font size for 50+ audience accessibility */
+    font-size: 16px;
+  }
+}
+
+/* Accessibility utilities for 50+ age group */
+@layer utilities {
+  /* Larger text sizes for improved readability */
+  .text-accessible-base {
+    font-size: 1.125rem;
+    line-height: 1.75;
+  }
+
+  .text-accessible-lg {
+    font-size: 1.25rem;
+    line-height: 1.75;
+  }
+
+  .text-accessible-xl {
+    font-size: 1.5rem;
+    line-height: 1.4;
+  }
+
+  /* Minimum touch target for accessibility (48px) */
+  .touch-target-lg {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  /* High contrast focus ring */
+  .focus-ring-accessible {
+    @apply focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
+  }
+
+  /* Tabular numbers for consistent alignment */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
   }
 }

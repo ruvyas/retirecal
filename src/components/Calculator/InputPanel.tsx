@@ -2,11 +2,13 @@ import { useCallback, useEffect, useState } from 'react'
 import { AgeSlider } from './AgeSlider'
 import { CurrencyInput } from './CurrencyInput'
 import { SavingsBreakdown } from './SavingsBreakdown'
+import { ContributionBreakdown } from './ContributionBreakdown'
 import { cn } from '@/lib/utils'
 import { useDebounce } from '@/hooks/useDebounce'
 import type {
   CalculatorInputs,
   SavingsBreakdown as SavingsBreakdownType,
+  ContributionBreakdown as ContributionBreakdownType,
 } from '@/lib/types/calculator'
 import { VALIDATION_BOUNDS } from '@/lib/types/calculator'
 
@@ -60,8 +62,8 @@ export function InputPanel({ values, onChange, disabled = false, className }: In
     setInternalValues((prev) => ({ ...prev, savings }))
   }, [])
 
-  const handleMonthlyContributionChange = useCallback((monthlyContribution: number) => {
-    setInternalValues((prev) => ({ ...prev, monthlyContribution }))
+  const handleContributionsChange = useCallback((contributions: ContributionBreakdownType) => {
+    setInternalValues((prev) => ({ ...prev, contributions }))
   }, [])
 
   const handleAnnualRetirementSpendingChange = useCallback((annualRetirementSpending: number) => {
@@ -108,12 +110,9 @@ export function InputPanel({ values, onChange, disabled = false, className }: In
       />
 
       <div className="grid gap-6 md:grid-cols-2">
-        <CurrencyInput
-          id="monthly-contribution"
-          label="Monthly Contribution"
-          value={internalValues.monthlyContribution}
-          onChange={handleMonthlyContributionChange}
-          helpText="Amount you save each month"
+        <ContributionBreakdown
+          value={internalValues.contributions}
+          onChange={handleContributionsChange}
           disabled={disabled}
         />
 

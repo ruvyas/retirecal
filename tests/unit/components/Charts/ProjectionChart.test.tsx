@@ -5,20 +5,38 @@ import {
   type ProjectionDataPoint,
 } from '../../../../src/components/Charts/ProjectionChart'
 
+// Helper to create a complete ProjectionDataPoint with defaults
+function createDataPoint(
+  overrides: Partial<ProjectionDataPoint> & { age: number; savings: number; isRetirement: boolean }
+): ProjectionDataPoint {
+  return {
+    phase: overrides.isRetirement ? 'retirement' : 'accumulation',
+    annualContribution: overrides.isRetirement ? 0 : 6000,
+    annualWithdrawal: overrides.isRetirement ? 50000 : 0,
+    originalWithdrawal: overrides.isRetirement ? 30000 : 0,
+    growthAmount: overrides.savings * 0.06,
+    returnRate: overrides.isRetirement ? 0.04 : 0.06,
+    postTaxIncome: overrides.isRetirement ? 35000 : 0,
+    cumulativeContributions: 0,
+    previousSavings: 0,
+    ...overrides,
+  }
+}
+
 const mockData: ProjectionDataPoint[] = [
-  { age: 30, savings: 100000, isRetirement: false },
-  { age: 35, savings: 200000, isRetirement: false },
-  { age: 40, savings: 350000, isRetirement: false },
-  { age: 45, savings: 550000, isRetirement: false },
-  { age: 50, savings: 800000, isRetirement: false },
-  { age: 55, savings: 1100000, isRetirement: false },
-  { age: 60, savings: 1500000, isRetirement: false },
-  { age: 65, savings: 1400000, isRetirement: true },
-  { age: 70, savings: 1250000, isRetirement: true },
-  { age: 75, savings: 1050000, isRetirement: true },
-  { age: 80, savings: 800000, isRetirement: true },
-  { age: 85, savings: 500000, isRetirement: true },
-  { age: 90, savings: 150000, isRetirement: true },
+  createDataPoint({ age: 30, savings: 100000, isRetirement: false }),
+  createDataPoint({ age: 35, savings: 200000, isRetirement: false }),
+  createDataPoint({ age: 40, savings: 350000, isRetirement: false }),
+  createDataPoint({ age: 45, savings: 550000, isRetirement: false }),
+  createDataPoint({ age: 50, savings: 800000, isRetirement: false }),
+  createDataPoint({ age: 55, savings: 1100000, isRetirement: false }),
+  createDataPoint({ age: 60, savings: 1500000, isRetirement: false }),
+  createDataPoint({ age: 65, savings: 1400000, isRetirement: true }),
+  createDataPoint({ age: 70, savings: 1250000, isRetirement: true }),
+  createDataPoint({ age: 75, savings: 1050000, isRetirement: true }),
+  createDataPoint({ age: 80, savings: 800000, isRetirement: true }),
+  createDataPoint({ age: 85, savings: 500000, isRetirement: true }),
+  createDataPoint({ age: 90, savings: 150000, isRetirement: true }),
 ]
 
 const defaultProps = {
@@ -109,7 +127,9 @@ describe('ProjectionChart', () => {
 
   describe('data formatting', () => {
     it('formats savings values in accessible table', () => {
-      const smallData: ProjectionDataPoint[] = [{ age: 30, savings: 1234567, isRetirement: false }]
+      const smallData: ProjectionDataPoint[] = [
+        createDataPoint({ age: 30, savings: 1234567, isRetirement: false }),
+      ]
 
       render(<ProjectionChart {...defaultProps} data={smallData} />)
 
@@ -120,7 +140,9 @@ describe('ProjectionChart', () => {
 
   describe('edge cases', () => {
     it('handles single data point', () => {
-      const singlePoint: ProjectionDataPoint[] = [{ age: 30, savings: 100000, isRetirement: false }]
+      const singlePoint: ProjectionDataPoint[] = [
+        createDataPoint({ age: 30, savings: 100000, isRetirement: false }),
+      ]
 
       render(<ProjectionChart {...defaultProps} data={singlePoint} />)
 
@@ -129,8 +151,8 @@ describe('ProjectionChart', () => {
 
     it('handles zero savings', () => {
       const zeroData: ProjectionDataPoint[] = [
-        { age: 30, savings: 0, isRetirement: false },
-        { age: 65, savings: 0, isRetirement: true },
+        createDataPoint({ age: 30, savings: 0, isRetirement: false }),
+        createDataPoint({ age: 65, savings: 0, isRetirement: true }),
       ]
 
       render(<ProjectionChart {...defaultProps} data={zeroData} />)
@@ -140,7 +162,9 @@ describe('ProjectionChart', () => {
     })
 
     it('handles negative savings (debt scenario)', () => {
-      const negativeData: ProjectionDataPoint[] = [{ age: 80, savings: -50000, isRetirement: true }]
+      const negativeData: ProjectionDataPoint[] = [
+        createDataPoint({ age: 80, savings: -50000, isRetirement: true }),
+      ]
 
       render(<ProjectionChart {...defaultProps} data={negativeData} />)
 
@@ -148,7 +172,9 @@ describe('ProjectionChart', () => {
     })
 
     it('handles large savings values', () => {
-      const largeData: ProjectionDataPoint[] = [{ age: 65, savings: 10000000, isRetirement: true }]
+      const largeData: ProjectionDataPoint[] = [
+        createDataPoint({ age: 65, savings: 10000000, isRetirement: true }),
+      ]
 
       render(<ProjectionChart {...defaultProps} data={largeData} />)
 

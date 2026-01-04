@@ -75,7 +75,7 @@ describe('useCalculator', () => {
       act(() => {
         result.current.setInputs({
           ...DEFAULT_INPUTS,
-          monthlyContribution: 2000, // Increase from 500
+          contributions: { rrsp: 800, tfsa: 800, nonRegistered: 400 }, // Increase from 500 total
         })
       })
 
@@ -174,7 +174,7 @@ describe('useCalculator', () => {
         result.current.setInputs({
           ...DEFAULT_INPUTS,
           currentAge: 45,
-          monthlyContribution: 2000,
+          contributions: { rrsp: 800, tfsa: 800, nonRegistered: 400 },
         })
       })
 
@@ -253,7 +253,7 @@ describe('computeResults', () => {
     retirementAge: 65,
     annualIncome: 75000,
     savings: { rrsp: 50000, tfsa: 30000, nonRegistered: 20000 },
-    monthlyContribution: 500,
+    contributions: { rrsp: 200, tfsa: 200, nonRegistered: 100 },
     annualRetirementSpending: 50000,
   }
 
@@ -322,7 +322,7 @@ describe('computeResults', () => {
     const zeroSavingsInputs = {
       ...testInputs,
       savings: { rrsp: 0, tfsa: 0, nonRegistered: 0 },
-      monthlyContribution: 0,
+      contributions: { rrsp: 0, tfsa: 0, nonRegistered: 0 },
     }
     const results = computeResults(zeroSavingsInputs, testAssumptions)
     expect(results.projectedSavings).toBe(0)
@@ -332,7 +332,7 @@ describe('computeResults', () => {
   it('handles higher contribution rate', () => {
     const highContributionInputs = {
       ...testInputs,
-      monthlyContribution: 2000,
+      contributions: { rrsp: 800, tfsa: 800, nonRegistered: 400 },
     }
     const normalResults = computeResults(testInputs, testAssumptions)
     const highContribResults = computeResults(highContributionInputs, testAssumptions)
@@ -373,7 +373,7 @@ describe('DEFAULT_INPUTS', () => {
     expect(DEFAULT_INPUTS).toHaveProperty('retirementAge')
     expect(DEFAULT_INPUTS).toHaveProperty('annualIncome')
     expect(DEFAULT_INPUTS).toHaveProperty('savings')
-    expect(DEFAULT_INPUTS).toHaveProperty('monthlyContribution')
+    expect(DEFAULT_INPUTS).toHaveProperty('contributions')
     expect(DEFAULT_INPUTS).toHaveProperty('annualRetirementSpending')
   })
 
@@ -381,7 +381,11 @@ describe('DEFAULT_INPUTS', () => {
     expect(DEFAULT_INPUTS.currentAge).toBeGreaterThanOrEqual(18)
     expect(DEFAULT_INPUTS.retirementAge).toBeGreaterThan(DEFAULT_INPUTS.currentAge)
     expect(DEFAULT_INPUTS.annualIncome).toBeGreaterThan(0)
-    expect(DEFAULT_INPUTS.monthlyContribution).toBeGreaterThanOrEqual(0)
+    const totalContributions =
+      DEFAULT_INPUTS.contributions.rrsp +
+      DEFAULT_INPUTS.contributions.tfsa +
+      DEFAULT_INPUTS.contributions.nonRegistered
+    expect(totalContributions).toBeGreaterThanOrEqual(0)
   })
 
   it('has valid savings breakdown', () => {
@@ -419,7 +423,7 @@ describe('generateProjectionData', () => {
     retirementAge: 65,
     annualIncome: 75000,
     savings: { rrsp: 50000, tfsa: 30000, nonRegistered: 20000 },
-    monthlyContribution: 500,
+    contributions: { rrsp: 200, tfsa: 200, nonRegistered: 100 },
     annualRetirementSpending: 50000,
   }
 
@@ -480,7 +484,7 @@ describe('generateProjectionData', () => {
     const zeroInputs = {
       ...testInputs,
       savings: { rrsp: 0, tfsa: 0, nonRegistered: 0 },
-      monthlyContribution: 0,
+      contributions: { rrsp: 0, tfsa: 0, nonRegistered: 0 },
     }
 
     const data = generateProjectionData(zeroInputs, testAssumptions)
@@ -518,7 +522,7 @@ describe('generateProjectionData', () => {
 
     const modifiedInputs = {
       ...testInputs,
-      monthlyContribution: 2000, // Higher contribution
+      contributions: { rrsp: 800, tfsa: 800, nonRegistered: 400 }, // Higher contribution
     }
     const data2 = generateProjectionData(modifiedInputs, testAssumptions)
 

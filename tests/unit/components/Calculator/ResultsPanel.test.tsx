@@ -9,15 +9,34 @@ const mockResults: CalculatorResults = {
   yearsUntilRetirement: 30,
   retirementRunway: 25,
   monthlyIncome: 5000,
+  monthlyIncomeToday: 2760, // Discounted by ~2% inflation over 30 years
   incomeGap: 500,
 }
 
+// Helper to create a complete ProjectionDataPoint with defaults
+function createDataPoint(
+  overrides: Partial<ProjectionDataPoint> & { age: number; savings: number; isRetirement: boolean }
+): ProjectionDataPoint {
+  return {
+    phase: overrides.isRetirement ? 'retirement' : 'accumulation',
+    annualContribution: overrides.isRetirement ? 0 : 6000,
+    annualWithdrawal: overrides.isRetirement ? 50000 : 0,
+    originalWithdrawal: overrides.isRetirement ? 30000 : 0,
+    growthAmount: overrides.savings * 0.06,
+    returnRate: overrides.isRetirement ? 0.04 : 0.06,
+    postTaxIncome: overrides.isRetirement ? 35000 : 0,
+    cumulativeContributions: 0,
+    previousSavings: 0,
+    ...overrides,
+  }
+}
+
 const mockProjectionData: ProjectionDataPoint[] = [
-  { age: 30, savings: 100000, isRetirement: false },
-  { age: 45, savings: 500000, isRetirement: false },
-  { age: 65, savings: 1500000, isRetirement: false },
-  { age: 80, savings: 1000000, isRetirement: true },
-  { age: 95, savings: 200000, isRetirement: true },
+  createDataPoint({ age: 30, savings: 100000, isRetirement: false }),
+  createDataPoint({ age: 45, savings: 500000, isRetirement: false }),
+  createDataPoint({ age: 65, savings: 1500000, isRetirement: false }),
+  createDataPoint({ age: 80, savings: 1000000, isRetirement: true }),
+  createDataPoint({ age: 95, savings: 200000, isRetirement: true }),
 ]
 
 const negativeGapResults: CalculatorResults = {

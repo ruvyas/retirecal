@@ -1,7 +1,9 @@
 import { cn } from '@/lib/utils'
 import { CheckCircle2, AlertTriangle, XCircle } from 'lucide-react'
+import { deriveStatus, type StatusType } from '@/lib/utils/status'
 
-export type StatusType = 'on-track' | 'attention-needed' | 'significant-gap'
+// Re-export for backwards compatibility
+export { deriveStatus, type StatusType }
 
 interface StatusIndicatorProps {
   status: StatusType
@@ -52,15 +54,4 @@ export function StatusIndicator({ status, message, className }: StatusIndicatorP
       </div>
     </div>
   )
-}
-
-/**
- * Helper function to derive status from income gap value
- * @param incomeGap - The monthly income gap (positive = surplus, negative = shortfall)
- * @returns The appropriate status type
- */
-export function deriveStatus(incomeGap: number): StatusType {
-  if (incomeGap >= 0) return 'on-track'
-  if (incomeGap >= -500) return 'attention-needed'
-  return 'significant-gap'
 }

@@ -3,6 +3,7 @@ import {
   calculateFutureValue,
   calculateContributionGrowth,
   calculateRetirementRunway,
+  calculateInflationAdjustedRunway,
   calculateSustainableIncome,
 } from '@/lib/calculations/retirement'
 
@@ -186,6 +187,98 @@ describe('calculateRetirementRunway', () => {
       expect(calculateRetirementRunway(NaN, 40000, 0.03)).toBe(0)
       expect(calculateRetirementRunway(500000, NaN, 0.03)).toBe(0)
       expect(calculateRetirementRunway(500000, 40000, NaN)).toBe(0)
+    })
+  })
+})
+
+describe('calculateInflationAdjustedRunway', () => {
+  describe('standard calculations', () => {
+    it('returns shorter runway than fixed-spending calculation due to inflation', () => {
+      // Compare: fixed spending vs inflation-adjusted spending
+      const fixedRunway = calculateRetirementRunway(500000, 40000, 0.04)
+      const inflationRunway = calculateInflationAdjustedRunway(500000, 40000, 0.04, 0.02)
+
+      // Inflation-adjusted should be shorter because withdrawals increase each year
+      expect(inflationRunway).toBeLessThan(fixedRunway)
+    })
+
+    it('calculates runway with 4% return and 2% inflation (2% real return)', () => {
+      // $500,000 savings, $40,000/year, 4% nominal, 2% inflation
+      // Real return = (1.04/1.02) - 1 ≈ 1.96%
+      const result = calculateInflationAdjustedRunway(500000, 40000, 0.04, 0.02)
+      // Should be around 14-16 years with real return of ~2%
+      expect(result).toBeGreaterThan(13)
+      expect(result).toBeLessThan(17)
+    })
+
+    it('returns Infinity for zero spending', () => {
+      const result = calculateInflationAdjustedRunway(500000, 0, 0.04, 0.02)
+      expect(result).toBe(Infinity)
+    })
+
+    it('returns 0 for zero savings', () => {
+      const result = calculateInflationAdjustedRunway(0, 40000, 0.04, 0.02)
+      expect(result).toBe(0)
+    })
+
+    it('returns Infinity when real return sustains withdrawals indefinitely', () => {
+      // $1,000,000 savings, $20,000/year, 5% nominal, 1% inflation
+      // Real return = (1.05/1.01) - 1 ≈ 3.96%
+      // Sustainable withdrawal = $1,000,000 * 0.0396 ≈ $39,600/year > $20,000
+      const result = calculateInflationAdjustedRunway(1000000, 20000, 0.05, 0.01)
+      expect(result).toBe(Infinity)
+    })
+
+    it('handles high inflation scenario (inflation > return)', () => {
+      // $500,000 savings, $40,000/year, 3% return, 4% inflation
+      // Real return is negative, so savings deplete faster
+      const result = calculateInflationAdjustedRunway(500000, 40000, 0.03, 0.04)
+      // Should deplete faster than simple division due to negative real return
+      expect(result).toBeGreaterThan(0)
+      expect(result).toBeLessThan(13) // Less than 500000/40000 = 12.5 years
+    })
+
+    it('handles zero inflation as equivalent to fixed spending', () => {
+      const fixedRunway = calculateRetirementRunway(500000, 40000, 0.04)
+      const zeroInflationRunway = calculateInflationAdjustedRunway(500000, 40000, 0.04, 0)
+      // Should be approximately equal (within rounding)
+      expect(Math.abs(fixedRunway - zeroInflationRunway)).toBeLessThan(0.1)
+    })
+
+    it('handles zero return rate with inflation', () => {
+      // $100,000 savings, $25,000/year, 0% return, 2% inflation
+      // Real return is negative, simple division
+      const result = calculateInflationAdjustedRunway(100000, 25000, 0, 0.02)
+      expect(result).toBe(4) // 100000 / 25000
+    })
+  })
+
+  describe('edge cases - invalid inputs return 0', () => {
+    it('returns 0 for negative savings', () => {
+      const result = calculateInflationAdjustedRunway(-500000, 40000, 0.04, 0.02)
+      expect(result).toBe(0)
+    })
+
+    it('returns 0 for negative spending', () => {
+      const result = calculateInflationAdjustedRunway(500000, -40000, 0.04, 0.02)
+      expect(result).toBe(0)
+    })
+
+    it('returns 0 for negative return rate', () => {
+      const result = calculateInflationAdjustedRunway(500000, 40000, -0.04, 0.02)
+      expect(result).toBe(0)
+    })
+
+    it('returns 0 for negative inflation rate', () => {
+      const result = calculateInflationAdjustedRunway(500000, 40000, 0.04, -0.02)
+      expect(result).toBe(0)
+    })
+
+    it('returns 0 for NaN inputs', () => {
+      expect(calculateInflationAdjustedRunway(NaN, 40000, 0.04, 0.02)).toBe(0)
+      expect(calculateInflationAdjustedRunway(500000, NaN, 0.04, 0.02)).toBe(0)
+      expect(calculateInflationAdjustedRunway(500000, 40000, NaN, 0.02)).toBe(0)
+      expect(calculateInflationAdjustedRunway(500000, 40000, 0.04, NaN)).toBe(0)
     })
   })
 })

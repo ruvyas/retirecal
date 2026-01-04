@@ -1,18 +1,23 @@
 import { useMemo } from 'react'
-import { Area, AreaChart, CartesianGrid, ReferenceLine, XAxis, YAxis } from 'recharts'
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from '@/components/ui/chart'
+import { Area, AreaChart, CartesianGrid, ReferenceLine, XAxis, YAxis, Tooltip } from 'recharts'
+import { ChartContainer, type ChartConfig } from '@/components/ui/chart'
 import { cn } from '@/lib/utils'
 import { formatCurrency } from '@/lib/formatters'
+import { EnhancedChartTooltip } from './EnhancedChartTooltip'
 
 export interface ProjectionDataPoint {
   age: number
   savings: number
   isRetirement: boolean
+  phase: 'accumulation' | 'retirement'
+  annualContribution: number
+  annualWithdrawal: number
+  originalWithdrawal: number
+  growthAmount: number
+  returnRate: number
+  postTaxIncome: number
+  cumulativeContributions: number
+  previousSavings: number
 }
 
 interface ProjectionChartProps {
@@ -72,7 +77,7 @@ export function ProjectionChart({
 
   return (
     <div className={cn('w-full', className)}>
-      <ChartContainer config={chartConfig} className="h-64 w-full">
+      <ChartContainer config={chartConfig} className="h-80 w-full">
         <AreaChart
           data={data}
           accessibilityLayer
@@ -102,14 +107,7 @@ export function ProjectionChart({
             tickFormatter={formatYAxis}
             width={60}
           />
-          <ChartTooltip
-            content={
-              <ChartTooltipContent
-                labelFormatter={(value) => `Age ${value}`}
-                formatter={(value) => [formatCurrency(value as number), 'Savings']}
-              />
-            }
-          />
+          <Tooltip content={<EnhancedChartTooltip />} />
           <ReferenceLine
             x={retirementAge}
             stroke="var(--chart-2)"
@@ -118,7 +116,7 @@ export function ProjectionChart({
               value: 'Retirement',
               position: 'top',
               fill: 'var(--muted-foreground)',
-              fontSize: 12,
+              fontSize: 14,
             }}
           />
           <Area

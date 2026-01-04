@@ -107,6 +107,58 @@ export function calculateRetirementRunway(
 }
 
 /**
+ * Calculate how many years savings will last with inflation-adjusted withdrawals
+ * Uses real return rate (adjusted for inflation) to account for increasing withdrawals
+ *
+ * @param totalSavings - Total retirement savings, must be non-negative
+ * @param annualSpending - Annual spending at start of retirement (in future dollars), must be non-negative
+ * @param nominalReturn - Annual nominal return rate during retirement as decimal, must be non-negative
+ * @param inflationRate - Annual inflation rate as decimal (e.g., 0.02 for 2%), must be non-negative
+ * @returns Years savings will last (Infinity if sustainable indefinitely), or 0 for invalid inputs
+ */
+export function calculateInflationAdjustedRunway(
+  totalSavings: number,
+  annualSpending: number,
+  nominalReturn: number,
+  inflationRate: number
+): number {
+  // Validate inputs
+  if (!isValidPositiveNumber(totalSavings)) return 0
+  if (!isValidPositiveNumber(annualSpending)) return 0
+  if (!isValidReturnRate(nominalReturn)) return 0
+  if (!isValidReturnRate(inflationRate)) return 0
+
+  // Edge case: no savings
+  if (totalSavings === 0) return 0
+
+  // Edge case: no spending - savings last forever
+  if (annualSpending === 0) return Infinity
+
+  // Calculate real return rate: (1 + nominal) / (1 + inflation) - 1
+  const realReturn = (1 + nominalReturn) / (1 + inflationRate) - 1
+
+  // Edge case: real return is zero or negative
+  if (realReturn <= 0) {
+    // Simple division - spending outpaces growth
+    return roundTo2Decimals(totalSavings / annualSpending)
+  }
+
+  // Check if savings can sustain indefinitely using real return
+  // If annual spending <= real investment returns, savings never deplete
+  const sustainableWithdrawal = totalSavings * realReturn
+  if (annualSpending <= sustainableWithdrawal) {
+    return Infinity
+  }
+
+  // Present value of annuity formula solved for n (using real return):
+  // n = ln(1 - (PV × r / PMT)) / -ln(1 + r)
+  const ratio = (totalSavings * realReturn) / annualSpending
+  const years = Math.log(1 - ratio) / -Math.log(1 + realReturn)
+
+  return roundTo2Decimals(years)
+}
+
+/**
  * Calculate sustainable monthly income from retirement savings
  * Uses annuity formula: PMT = PV × [r / (1 - (1 + r)^-n)]
  *

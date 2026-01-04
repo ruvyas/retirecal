@@ -4,7 +4,7 @@
 
 import { VALIDATION_BOUNDS } from '../calculations/constants'
 import { formatCurrency } from '../formatters'
-import type { CalculatorInputs, SavingsBreakdown } from '../types/calculator'
+import type { CalculatorInputs, SavingsBreakdown, ContributionBreakdown } from '../types/calculator'
 
 /**
  * Validation errors structure matching CalculatorInputs shape
@@ -18,7 +18,11 @@ export interface ValidationErrors {
     tfsa?: string
     nonRegistered?: string
   }
-  monthlyContribution?: string
+  contributions?: {
+    rrsp?: string
+    tfsa?: string
+    nonRegistered?: string
+  }
   annualRetirementSpending?: string
 }
 
@@ -108,6 +112,38 @@ export function validateSavingsBreakdown(
 }
 
 /**
+ * Validate all contribution breakdown fields
+ */
+export function validateContributionBreakdown(
+  contributions: ContributionBreakdown
+): ValidationErrors['contributions'] | undefined {
+  const errors: NonNullable<ValidationErrors['contributions']> = {}
+
+  const rrspError = validateCurrencyAmount(
+    contributions.rrsp,
+    'RRSP contribution',
+    VALIDATION_BOUNDS.monthlyContribution.max
+  )
+  if (rrspError) errors.rrsp = rrspError
+
+  const tfsaError = validateCurrencyAmount(
+    contributions.tfsa,
+    'TFSA contribution',
+    VALIDATION_BOUNDS.monthlyContribution.max
+  )
+  if (tfsaError) errors.tfsa = tfsaError
+
+  const nonRegError = validateCurrencyAmount(
+    contributions.nonRegistered,
+    'Non-registered contribution',
+    VALIDATION_BOUNDS.monthlyContribution.max
+  )
+  if (nonRegError) errors.nonRegistered = nonRegError
+
+  return Object.keys(errors).length > 0 ? errors : undefined
+}
+
+/**
  * Validate all calculator inputs
  * Returns object with error messages for invalid fields
  */
@@ -126,12 +162,8 @@ export function validateInputs(inputs: CalculatorInputs): ValidationErrors {
   const savingsErrors = validateSavingsBreakdown(inputs.savings)
   if (savingsErrors) errors.savings = savingsErrors
 
-  const contributionError = validateCurrencyAmount(
-    inputs.monthlyContribution,
-    'Monthly contribution',
-    VALIDATION_BOUNDS.monthlyContribution.max
-  )
-  if (contributionError) errors.monthlyContribution = contributionError
+  const contributionErrors = validateContributionBreakdown(inputs.contributions)
+  if (contributionErrors) errors.contributions = contributionErrors
 
   const spendingError = validateCurrencyAmount(
     inputs.annualRetirementSpending,
@@ -201,11 +233,23 @@ export function sanitizeInputs(inputs: CalculatorInputs): CalculatorInputs {
       tfsa: clamp(inputs.savings.tfsa, 0, VALIDATION_BOUNDS.amounts.max),
       nonRegistered: clamp(inputs.savings.nonRegistered, 0, VALIDATION_BOUNDS.amounts.max),
     },
-    monthlyContribution: clamp(
-      inputs.monthlyContribution,
-      VALIDATION_BOUNDS.monthlyContribution.min,
-      VALIDATION_BOUNDS.monthlyContribution.max
-    ),
+    contributions: {
+      rrsp: clamp(
+        inputs.contributions.rrsp,
+        VALIDATION_BOUNDS.monthlyContribution.min,
+        VALIDATION_BOUNDS.monthlyContribution.max
+      ),
+      tfsa: clamp(
+        inputs.contributions.tfsa,
+        VALIDATION_BOUNDS.monthlyContribution.min,
+        VALIDATION_BOUNDS.monthlyContribution.max
+      ),
+      nonRegistered: clamp(
+        inputs.contributions.nonRegistered,
+        VALIDATION_BOUNDS.monthlyContribution.min,
+        VALIDATION_BOUNDS.monthlyContribution.max
+      ),
+    },
     annualRetirementSpending: clamp(
       inputs.annualRetirementSpending,
       VALIDATION_BOUNDS.annualRetirementSpending.min,

@@ -18,6 +18,18 @@ export interface SavingsBreakdown {
 }
 
 /**
+ * Breakdown of monthly contributions by account type
+ */
+export interface ContributionBreakdown {
+  /** Monthly RRSP contribution */
+  rrsp: number
+  /** Monthly TFSA contribution */
+  tfsa: number
+  /** Monthly non-registered investment contribution */
+  nonRegistered: number
+}
+
+/**
  * All user input fields for the calculator
  */
 export interface CalculatorInputs {
@@ -29,8 +41,8 @@ export interface CalculatorInputs {
   annualIncome: number
   /** Current savings breakdown by account type */
   savings: SavingsBreakdown
-  /** Monthly contribution to savings */
-  monthlyContribution: number
+  /** Monthly contributions by account type */
+  contributions: ContributionBreakdown
   /** Expected annual spending in retirement */
   annualRetirementSpending: number
 }
@@ -45,8 +57,10 @@ export interface CalculatorResults {
   yearsUntilRetirement: number
   /** How many years savings will last in retirement */
   retirementRunway: number
-  /** Sustainable monthly income in retirement */
+  /** Sustainable monthly income in retirement (nominal, at retirement date) */
   monthlyIncome: number
+  /** Monthly income expressed in today's dollars (inflation-adjusted back) */
+  monthlyIncomeToday: number
   /** Gap (negative) or surplus (positive) vs desired spending */
   incomeGap: number
 }

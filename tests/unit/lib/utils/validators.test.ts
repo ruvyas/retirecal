@@ -16,7 +16,7 @@ const validInputs: CalculatorInputs = {
   retirementAge: 65,
   annualIncome: 75000,
   savings: { rrsp: 50000, tfsa: 30000, nonRegistered: 20000 },
-  monthlyContribution: 500,
+  contributions: { rrsp: 200, tfsa: 200, nonRegistered: 100 },
   annualRetirementSpending: 50000,
 }
 
@@ -231,10 +231,13 @@ describe('validateInputs', () => {
     expect(errors.savings?.rrsp).toBeDefined()
   })
 
-  it('validates monthlyContribution with 100K max', () => {
-    const inputs = { ...validInputs, monthlyContribution: 101_000 }
+  it('validates contributions with 100K max per account', () => {
+    const inputs = {
+      ...validInputs,
+      contributions: { rrsp: 101_000, tfsa: 200, nonRegistered: 100 },
+    }
     const errors = validateInputs(inputs)
-    expect(errors.monthlyContribution).toBeDefined()
+    expect(errors.contributions?.rrsp).toBeDefined()
   })
 
   it('validates annualRetirementSpending with 10M max', () => {
@@ -249,7 +252,7 @@ describe('validateInputs', () => {
       retirementAge: 5,
       annualIncome: -1000,
       savings: { rrsp: -100, tfsa: -100, nonRegistered: -100 },
-      monthlyContribution: -500,
+      contributions: { rrsp: -200, tfsa: -200, nonRegistered: -100 },
       annualRetirementSpending: -1000,
     }
     const errors = validateInputs(invalidInputs)
@@ -257,7 +260,7 @@ describe('validateInputs', () => {
     expect(errors.retirementAge).toBeDefined()
     expect(errors.annualIncome).toBeDefined()
     expect(errors.savings).toBeDefined()
-    expect(errors.monthlyContribution).toBeDefined()
+    expect(errors.contributions).toBeDefined()
     expect(errors.annualRetirementSpending).toBeDefined()
   })
 })
@@ -325,12 +328,14 @@ describe('sanitizeInputs', () => {
     const inputs = {
       ...validInputs,
       annualIncome: -1000,
-      monthlyContribution: -500,
+      contributions: { rrsp: -200, tfsa: -200, nonRegistered: -100 },
       annualRetirementSpending: -2000,
     }
     const result = sanitizeInputs(inputs)
     expect(result.annualIncome).toBe(0)
-    expect(result.monthlyContribution).toBe(0)
+    expect(result.contributions.rrsp).toBe(0)
+    expect(result.contributions.tfsa).toBe(0)
+    expect(result.contributions.nonRegistered).toBe(0)
     expect(result.annualRetirementSpending).toBe(0)
   })
 
@@ -345,10 +350,15 @@ describe('sanitizeInputs', () => {
     expect(result.savings.nonRegistered).toBe(0)
   })
 
-  it('clamps monthlyContribution above 100K to 100K', () => {
-    const inputs = { ...validInputs, monthlyContribution: 200_000 }
+  it('clamps contributions above 100K to 100K per account', () => {
+    const inputs = {
+      ...validInputs,
+      contributions: { rrsp: 200_000, tfsa: 150_000, nonRegistered: 180_000 },
+    }
     const result = sanitizeInputs(inputs)
-    expect(result.monthlyContribution).toBe(100_000)
+    expect(result.contributions.rrsp).toBe(100_000)
+    expect(result.contributions.tfsa).toBe(100_000)
+    expect(result.contributions.nonRegistered).toBe(100_000)
   })
 
   it('clamps annualRetirementSpending above 10M to 10M', () => {

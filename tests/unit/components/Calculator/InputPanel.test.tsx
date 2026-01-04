@@ -13,7 +13,11 @@ const defaultValues: CalculatorInputs = {
     tfsa: 30000,
     nonRegistered: 20000,
   },
-  monthlyContribution: 500,
+  contributions: {
+    rrsp: 200,
+    tfsa: 200,
+    nonRegistered: 100,
+  },
   annualRetirementSpending: 50000,
 }
 
@@ -36,11 +40,11 @@ describe('InputPanel', () => {
 
       // Currency inputs
       expect(screen.getByLabelText('Annual Income')).toBeInTheDocument()
-      expect(screen.getByLabelText('Monthly Contribution')).toBeInTheDocument()
       expect(screen.getByLabelText('Annual Retirement Spending')).toBeInTheDocument()
 
-      // Savings breakdown
+      // Savings and contributions breakdowns
       expect(screen.getByText('Current Savings')).toBeInTheDocument()
+      expect(screen.getByText('Monthly Contributions')).toBeInTheDocument()
     })
 
     it('displays correct initial values', () => {
@@ -49,7 +53,8 @@ describe('InputPanel', () => {
       expect(screen.getByDisplayValue('30')).toBeInTheDocument() // Current age
       expect(screen.getByDisplayValue('65')).toBeInTheDocument() // Retirement age
       expect(screen.getByDisplayValue('$75,000')).toBeInTheDocument() // Annual income
-      expect(screen.getByDisplayValue('$500')).toBeInTheDocument() // Monthly contribution
+      // Total monthly contributions: 200 + 200 + 100 = $500/mo
+      expect(screen.getByText('$500/mo')).toBeInTheDocument()
       expect(screen.getByDisplayValue('$50,000')).toBeInTheDocument() // Annual retirement spending
     })
 
