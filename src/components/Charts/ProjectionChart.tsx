@@ -76,7 +76,7 @@ export function ProjectionChart({
   }
 
   return (
-    <div className={cn('w-full', className)}>
+    <div className={cn('relative overflow-hidden w-full', className)}>
       <ChartContainer config={chartConfig} className="h-80 w-full">
         <AreaChart
           data={data}

@@ -143,13 +143,9 @@ export function Calculator({ className }: CalculatorProps) {
           isComplete={false}
           onActivate={() => setActiveSection(4)}
         >
-          <p className="text-base text-muted-foreground mb-4">
-            Fine-tune the assumptions used in your retirement calculations.
-          </p>
           <AssumptionsAccordion
             assumptions={assumptions}
             onAssumptionChange={handleAssumptionChange}
-            className="border-0"
           />
         </WizardSection>
       </div>
