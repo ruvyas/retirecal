@@ -82,11 +82,11 @@ export function EnhancedChartTooltip({ active, payload }: EnhancedChartTooltipPr
               <span className="text-muted-foreground">Withdrawal</span>
               <div className="text-right">
                 <span className="font-medium text-orange-600 dark:text-orange-400 tabular-nums">
-                  -{formatCurrency(data.annualWithdrawal)}
+                  -{formatCurrency(data.originalWithdrawal)}
                 </span>
-                {data.originalWithdrawal > 0 && (
+                {data.annualWithdrawal > 0 && (
                   <div className="text-xs text-muted-foreground">
-                    ({formatCurrency(data.originalWithdrawal)} in today's $)
+                    ({formatCurrency(data.annualWithdrawal)} inflation-adjusted)
                   </div>
                 )}
               </div>

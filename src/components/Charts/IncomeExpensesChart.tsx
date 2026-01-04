@@ -11,7 +11,9 @@ import { formatCurrency } from '@/lib/formatters'
 
 interface IncomeExpensesChartProps {
   sustainableIncome: number
+  sustainableIncomeToday: number
   desiredSpending: number
+  desiredSpendingToday: number
   className?: string
 }
 
@@ -31,26 +33,29 @@ const chartConfig = {
 
 export function IncomeExpensesChart({
   sustainableIncome,
+  sustainableIncomeToday,
   desiredSpending,
+  desiredSpendingToday,
   className,
 }: IncomeExpensesChartProps) {
   const gap = sustainableIncome - desiredSpending
+  const gapToday = sustainableIncomeToday - desiredSpendingToday
   const isOnTrack = gap >= 0
 
   const data = useMemo(
     () => [
       {
         name: 'Sustainable Income',
-        amount: sustainableIncome,
+        amount: sustainableIncomeToday,
         fill: 'var(--chart-1)',
       },
       {
         name: 'Desired Spending',
-        amount: desiredSpending,
+        amount: desiredSpendingToday,
         fill: 'var(--chart-2)',
       },
     ],
-    [sustainableIncome, desiredSpending]
+    [sustainableIncomeToday, desiredSpendingToday]
   )
 
   const formatYAxis = (value: number) => {
@@ -70,12 +75,14 @@ export function IncomeExpensesChart({
         <p className="text-sm text-muted-foreground">
           {isOnTrack ? (
             <span className="text-emerald-600 dark:text-emerald-400">
-              You have a surplus of {formatCurrency(gap)}/month ({formatCurrency(gap * 12)}/year)
+              You have a surplus of {formatCurrency(gapToday)}/month (
+              {formatCurrency(gapToday * 12)}
+              /year)
             </span>
           ) : (
             <span className="text-red-600 dark:text-red-400">
-              You have a shortfall of {formatCurrency(Math.abs(gap))}/month (
-              {formatCurrency(Math.abs(gap) * 12)}/year)
+              You have a shortfall of {formatCurrency(Math.abs(gapToday))}/month (
+              {formatCurrency(Math.abs(gapToday) * 12)}/year)
             </span>
           )}
         </p>
@@ -108,19 +115,19 @@ export function IncomeExpensesChart({
         <div className="rounded-lg bg-muted/50 p-3">
           <div className="text-sm text-muted-foreground">Sustainable Income</div>
           <div className="text-xl font-semibold tabular-nums">
-            {formatCurrency(sustainableIncome)}/mo
+            {formatCurrency(sustainableIncomeToday)}/mo
           </div>
           <div className="text-sm text-muted-foreground tabular-nums">
-            {formatCurrency(sustainableIncome * 12)}/yr
+            ({formatCurrency(sustainableIncome)}/mo at retirement)
           </div>
         </div>
         <div className="rounded-lg bg-muted/50 p-3">
           <div className="text-sm text-muted-foreground">Desired Spending</div>
           <div className="text-xl font-semibold tabular-nums">
-            {formatCurrency(desiredSpending)}/mo
+            {formatCurrency(desiredSpendingToday)}/mo
           </div>
           <div className="text-sm text-muted-foreground tabular-nums">
-            {formatCurrency(desiredSpending * 12)}/yr
+            ({formatCurrency(desiredSpending)}/mo at retirement)
           </div>
         </div>
       </div>

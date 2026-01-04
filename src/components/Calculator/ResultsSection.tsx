@@ -84,8 +84,8 @@ export function ResultsSection({
 
         <MetricCard
           title="Monthly Retirement Income"
-          value={formatCurrency(results.monthlyIncome)}
-          subtitle={`${formatCurrency(results.monthlyIncomeToday)} in today's dollars`}
+          value={formatCurrency(results.monthlyIncomeToday)}
+          subtitle={`${formatCurrency(results.monthlyIncome)} at retirement`}
         />
 
         <MetricCard
@@ -123,7 +123,9 @@ export function ResultsSection({
         <CardContent>
           <IncomeExpensesChart
             sustainableIncome={results.monthlyIncome}
+            sustainableIncomeToday={results.monthlyIncomeToday}
             desiredSpending={inflationAdjustedSpending / 12}
+            desiredSpendingToday={annualRetirementSpending / 12}
           />
         </CardContent>
       </Card>

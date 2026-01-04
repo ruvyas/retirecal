@@ -68,10 +68,10 @@ export function StickyResultsSummary({ results, className }: StickyResultsSummar
             <span className="text-muted-foreground">Monthly Income:</span>
             <div className="flex items-baseline gap-1.5">
               <span className="font-semibold tabular-nums">
-                {formatCurrency(results.monthlyIncome)}
+                {formatCurrency(results.monthlyIncomeToday)}
               </span>
               <span className="text-sm text-muted-foreground tabular-nums">
-                ({formatCurrency(results.monthlyIncomeToday)} today)
+                ({formatCurrency(results.monthlyIncome)} at retirement)
               </span>
             </div>
           </div>
