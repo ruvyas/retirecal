@@ -41,7 +41,12 @@ export function StatusIndicator({ status, message, className }: StatusIndicatorP
 
   return (
     <div
-      className={cn('flex items-center gap-3 rounded-lg p-3', config.colorClasses, className)}
+      className={cn(
+        'flex items-center gap-3 rounded-lg p-3',
+        'transition-colors duration-300 motion-reduce:transition-none',
+        config.colorClasses,
+        className
+      )}
       role="status"
       aria-live="polite"
       data-testid="status-indicator"

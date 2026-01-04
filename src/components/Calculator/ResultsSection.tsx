@@ -1,9 +1,11 @@
+import type { ReactNode } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusIndicator, deriveStatus } from './StatusIndicator'
 import { ProjectionChart, type ProjectionDataPoint } from '@/components/Charts/ProjectionChart'
 import { IncomeExpensesChart } from '@/components/Charts/IncomeExpensesChart'
+import { AnimatedCurrency } from '@/components/ui/AnimatedCurrency'
+import { AnimatedNumber } from '@/components/ui/AnimatedNumber'
 import { cn } from '@/lib/utils'
-import { formatCurrency, formatYears } from '@/lib/formatters'
 import type { CalculatorResults } from '@/lib/types/calculator'
 
 interface ResultsSectionProps {
@@ -19,8 +21,8 @@ interface ResultsSectionProps {
 
 interface MetricCardProps {
   title: string
-  value: string
-  subtitle?: string
+  value: ReactNode
+  subtitle?: ReactNode
   variant?: 'default' | 'positive' | 'negative'
 }
 
@@ -75,22 +77,26 @@ export function ResultsSection({
         className="p-4 text-base"
       />
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-3" aria-live="polite" aria-atomic="false">
         <MetricCard
           title="Savings at Retirement"
-          value={formatCurrency(results.projectedSavings)}
+          value={<AnimatedCurrency value={results.projectedSavings} />}
           subtitle={`In ${results.yearsUntilRetirement} years`}
         />
 
         <MetricCard
           title="Monthly Retirement Income"
-          value={formatCurrency(results.monthlyIncomeToday)}
-          subtitle={`${formatCurrency(results.monthlyIncome)} at retirement`}
+          value={<AnimatedCurrency value={results.monthlyIncomeToday} />}
+          subtitle={
+            <>
+              <AnimatedCurrency value={results.monthlyIncome} /> at retirement
+            </>
+          }
         />
 
         <MetricCard
           title="Retirement Runway"
-          value={formatYears(results.retirementRunway)}
+          value={<AnimatedNumber value={results.retirementRunway} format="years" />}
           subtitle={
             results.retirementRunway === Infinity
               ? 'Your savings are sustainable'

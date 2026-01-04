@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useId } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { CurrencyInput } from './CurrencyInput'
@@ -20,6 +20,7 @@ export function ContributionBreakdown({
   className,
 }: ContributionBreakdownProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const contentId = useId()
 
   const total = value.rrsp + value.tfsa + value.nonRegistered
 
@@ -49,10 +50,12 @@ export function ContributionBreakdown({
       <CollapsibleTrigger
         className={cn(
           'flex w-full items-center justify-between rounded-lg border bg-card p-3 text-left',
+          'min-h-[44px]', // Minimum touch target for mobile accessibility
           'hover:bg-accent/50 transition-colors',
           disabled && 'pointer-events-none opacity-50'
         )}
         aria-expanded={isOpen}
+        aria-controls={contentId}
         disabled={disabled}
       >
         <div className="flex flex-col gap-0.5">
@@ -67,7 +70,7 @@ export function ContributionBreakdown({
           aria-hidden="true"
         />
       </CollapsibleTrigger>
-      <CollapsibleContent className="space-y-3 pt-2">
+      <CollapsibleContent id={contentId} className="space-y-3 pt-2">
         <CurrencyInput
           id="contribution-rrsp"
           label="RRSP"

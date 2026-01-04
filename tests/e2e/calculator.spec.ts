@@ -173,9 +173,8 @@ test.describe('Calculator', () => {
     test('should have no critical accessibility violations', async ({ page }) => {
       const accessibilityScanResults = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa'])
-        // Exclude known issues that need separate fixes (pre-existing in codebase)
+        // Exclude known Radix UI library issues that cannot be fixed in our code
         .disableRules([
-          'color-contrast', // Color contrast issues need design changes
           'aria-allowed-attr', // Radix slider puts aria-value* on wrong elements
           'aria-input-field-name', // Slider thumbs missing labels (Radix issue)
         ])
@@ -186,6 +185,22 @@ test.describe('Calculator', () => {
         (v) => v.impact === 'critical' || v.impact === 'serious'
       )
       expect(criticalViolations).toEqual([])
+    })
+
+    test('skip link navigates to main content', async ({ page }) => {
+      // Press Tab to focus skip link
+      await page.keyboard.press('Tab')
+
+      // Skip link should be visible when focused
+      const skipLink = page.getByText('Skip to main content')
+      await expect(skipLink).toBeVisible()
+
+      // Activate skip link
+      await page.keyboard.press('Enter')
+
+      // Main content should be focused
+      const main = page.locator('#main-content')
+      await expect(main).toBeFocused()
     })
 
     test('all form fields have labels', async ({ page }) => {

@@ -34,7 +34,10 @@ function Slider({
       <SliderPrimitive.Track
         data-slot="slider-track"
         className={cn(
-          'bg-muted relative grow overflow-hidden rounded-full data-[orientation=horizontal]:h-1.5 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1.5'
+          'bg-muted relative grow overflow-hidden rounded-full',
+          // Taller track on mobile for easier touch interaction
+          'data-[orientation=horizontal]:h-2 data-[orientation=horizontal]:md:h-1.5 data-[orientation=horizontal]:w-full',
+          'data-[orientation=vertical]:h-full data-[orientation=vertical]:w-2 data-[orientation=vertical]:md:w-1.5'
         )}
       >
         <SliderPrimitive.Range
@@ -48,7 +51,13 @@ function Slider({
         <SliderPrimitive.Thumb
           data-slot="slider-thumb"
           key={index}
-          className="border-primary ring-ring/50 block size-4 shrink-0 rounded-full border bg-white shadow-sm transition-[color,box-shadow] hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50"
+          className={cn(
+            'border-primary ring-ring/50 block shrink-0 rounded-full border bg-white shadow-sm',
+            // Larger touch target on mobile (24px), smaller on desktop (16px)
+            'size-6 md:size-4',
+            'transition-[color,box-shadow] hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden',
+            'disabled:pointer-events-none disabled:opacity-50'
+          )}
         />
       ))}
     </SliderPrimitive.Root>
