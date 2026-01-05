@@ -29,7 +29,7 @@ describe('AssumptionsInputs', () => {
           assumptions={mockAssumptions}
           onAssumptionChange={mockOnChange}
           province={mockProvince}
-          estimatedAnnualIncome={mockEstimatedAnnualIncome}
+          currentAnnualIncome={mockEstimatedAnnualIncome}
         />
       )
 
@@ -47,7 +47,7 @@ describe('AssumptionsInputs', () => {
           assumptions={mockAssumptions}
           onAssumptionChange={mockOnChange}
           province={mockProvince}
-          estimatedAnnualIncome={mockEstimatedAnnualIncome}
+          currentAnnualIncome={mockEstimatedAnnualIncome}
           className="custom-class"
         />
       )
@@ -62,7 +62,7 @@ describe('AssumptionsInputs', () => {
           assumptions={mockAssumptions}
           onAssumptionChange={mockOnChange}
           province={mockProvince}
-          estimatedAnnualIncome={mockEstimatedAnnualIncome}
+          currentAnnualIncome={mockEstimatedAnnualIncome}
         />
       )
 
@@ -76,7 +76,7 @@ describe('AssumptionsInputs', () => {
           assumptions={mockAssumptions}
           onAssumptionChange={mockOnChange}
           province={mockProvince}
-          estimatedAnnualIncome={mockEstimatedAnnualIncome}
+          currentAnnualIncome={mockEstimatedAnnualIncome}
         />
       )
 
@@ -90,7 +90,7 @@ describe('AssumptionsInputs', () => {
           assumptions={mockAssumptions}
           onAssumptionChange={mockOnChange}
           province={mockProvince}
-          estimatedAnnualIncome={mockEstimatedAnnualIncome}
+          currentAnnualIncome={mockEstimatedAnnualIncome}
         />
       )
 
@@ -108,7 +108,7 @@ describe('AssumptionsInputs', () => {
           assumptions={assumptionsWithArtifact}
           onAssumptionChange={mockOnChange}
           province={mockProvince}
-          estimatedAnnualIncome={mockEstimatedAnnualIncome}
+          currentAnnualIncome={mockEstimatedAnnualIncome}
         />
       )
 
@@ -126,7 +126,7 @@ describe('AssumptionsInputs', () => {
           assumptions={mockAssumptions}
           onAssumptionChange={mockOnChange}
           province={mockProvince}
-          estimatedAnnualIncome={mockEstimatedAnnualIncome}
+          currentAnnualIncome={mockEstimatedAnnualIncome}
         />
       )
 
@@ -145,7 +145,7 @@ describe('AssumptionsInputs', () => {
           assumptions={mockAssumptions}
           onAssumptionChange={mockOnChange}
           province={mockProvince}
-          estimatedAnnualIncome={mockEstimatedAnnualIncome}
+          currentAnnualIncome={mockEstimatedAnnualIncome}
         />
       )
 
@@ -165,7 +165,7 @@ describe('AssumptionsInputs', () => {
           assumptions={mockAssumptions}
           onAssumptionChange={mockOnChange}
           province={mockProvince}
-          estimatedAnnualIncome={mockEstimatedAnnualIncome}
+          currentAnnualIncome={mockEstimatedAnnualIncome}
         />
       )
 
@@ -187,7 +187,7 @@ describe('AssumptionsInputs', () => {
           assumptions={assumptionsWithNullTax}
           onAssumptionChange={mockOnChange}
           province={mockProvince}
-          estimatedAnnualIncome={mockEstimatedAnnualIncome}
+          currentAnnualIncome={mockEstimatedAnnualIncome}
         />
       )
 
@@ -205,15 +205,17 @@ describe('AssumptionsInputs', () => {
           assumptions={assumptionsWithNullTax}
           onAssumptionChange={mockOnChange}
           province={mockProvince}
-          estimatedAnnualIncome={mockEstimatedAnnualIncome}
+          currentAnnualIncome={mockEstimatedAnnualIncome}
         />
       )
 
-      // Should show Federal, Provincial, Effective, and Marginal labels
-      expect(screen.getByText('Federal:')).toBeInTheDocument()
-      expect(screen.getByText('Provincial:')).toBeInTheDocument()
-      expect(screen.getByText('Effective:')).toBeInTheDocument()
-      expect(screen.getByText('Marginal:')).toBeInTheDocument()
+      // Should show Current Income and Retirement Income sections with full breakdown
+      expect(screen.getByText('Current Income')).toBeInTheDocument()
+      expect(screen.getByText('Retirement Income')).toBeInTheDocument()
+      expect(screen.getAllByText('Federal:')).toHaveLength(2)
+      expect(screen.getAllByText('Provincial:')).toHaveLength(2)
+      expect(screen.getAllByText('Effective:')).toHaveLength(2)
+      expect(screen.getAllByText('Marginal:')).toHaveLength(2)
     })
 
     it('shows manual input when taxRate is set', () => {
@@ -222,7 +224,7 @@ describe('AssumptionsInputs', () => {
           assumptions={mockAssumptions}
           onAssumptionChange={mockOnChange}
           province={mockProvince}
-          estimatedAnnualIncome={mockEstimatedAnnualIncome}
+          currentAnnualIncome={mockEstimatedAnnualIncome}
         />
       )
 
@@ -237,7 +239,7 @@ describe('AssumptionsInputs', () => {
           assumptions={mockAssumptions}
           onAssumptionChange={mockOnChange}
           province={mockProvince}
-          estimatedAnnualIncome={mockEstimatedAnnualIncome}
+          currentAnnualIncome={mockEstimatedAnnualIncome}
         />
       )
 

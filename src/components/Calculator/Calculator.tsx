@@ -148,7 +148,8 @@ export function Calculator({ className }: CalculatorProps) {
             assumptions={assumptions}
             onAssumptionChange={handleAssumptionChange}
             province={inputs.province}
-            estimatedAnnualIncome={results.monthlyIncome * 12}
+            currentAnnualIncome={internalInputs.annualIncome}
+            retirementAnnualIncome={results.grossMonthlyIncome * 12}
           />
         </WizardSection>
       </div>

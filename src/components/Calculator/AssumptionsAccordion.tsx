@@ -11,7 +11,8 @@ interface AssumptionsInputsProps {
   assumptions: Assumptions
   onAssumptionChange: (key: keyof Assumptions, value: number | null) => void
   province: Province
-  estimatedAnnualIncome?: number
+  currentAnnualIncome?: number
+  retirementAnnualIncome?: number
   className?: string
 }
 
@@ -86,18 +87,23 @@ export function AssumptionsInputs({
   assumptions,
   onAssumptionChange,
   province,
-  estimatedAnnualIncome,
+  currentAnnualIncome,
+  retirementAnnualIncome,
   className,
 }: AssumptionsInputsProps) {
-  // Calculate tax breakdown for display
-  const taxResult =
-    estimatedAnnualIncome && estimatedAnnualIncome > 0
-      ? calculateCanadianTax(estimatedAnnualIncome, province)
+  // Calculate tax breakdown for current income
+  const currentTaxResult =
+    currentAnnualIncome && currentAnnualIncome > 0
+      ? calculateCanadianTax(currentAnnualIncome, province)
       : null
 
-  const federalRate = taxResult ? taxResult.federal / estimatedAnnualIncome! : 0
-  const provincialRate = taxResult ? taxResult.provincial / estimatedAnnualIncome! : 0
-  const effectiveTaxRate = taxResult?.effectiveRate ?? 0
+  // Calculate tax breakdown for retirement income
+  const retirementTaxResult =
+    retirementAnnualIncome && retirementAnnualIncome > 0
+      ? calculateCanadianTax(retirementAnnualIncome, province)
+      : null
+
+  const effectiveTaxRate = retirementTaxResult?.effectiveRate ?? 0
 
   const isUsingBrackets = assumptions.taxRate === null
 
@@ -166,22 +172,74 @@ export function AssumptionsInputs({
         </div>
         <div className="flex items-center gap-1">
           {isUsingBrackets ? (
-            <div className="text-right text-xs text-muted-foreground tabular-nums space-y-0.5">
-              <div className="flex justify-between gap-2">
-                <span>Federal:</span>
-                <span>{(federalRate * 100).toFixed(2)}%</span>
+            <div className="text-right text-xs text-muted-foreground tabular-nums space-y-2">
+              {/* Current Income Tax */}
+              <div className="space-y-0.5">
+                <div className="text-xs font-medium text-foreground/70 text-left">
+                  Current Income
+                </div>
+                <div className="flex justify-between gap-2">
+                  <span>Federal:</span>
+                  <span>
+                    {(
+                      ((currentTaxResult?.federal ?? 0) / (currentAnnualIncome || 1)) *
+                      100
+                    ).toFixed(2)}
+                    %
+                  </span>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <span>Provincial:</span>
+                  <span>
+                    {(
+                      ((currentTaxResult?.provincial ?? 0) / (currentAnnualIncome || 1)) *
+                      100
+                    ).toFixed(2)}
+                    %
+                  </span>
+                </div>
+                <div className="flex justify-between gap-2 font-medium text-foreground">
+                  <span>Effective:</span>
+                  <span>{((currentTaxResult?.effectiveRate ?? 0) * 100).toFixed(2)}%</span>
+                </div>
+                <div className="flex justify-between gap-2 pt-1 border-t border-border/50">
+                  <span>Marginal:</span>
+                  <span>{((currentTaxResult?.marginalRate ?? 0) * 100).toFixed(2)}%</span>
+                </div>
               </div>
-              <div className="flex justify-between gap-2">
-                <span>Provincial:</span>
-                <span>{(provincialRate * 100).toFixed(2)}%</span>
-              </div>
-              <div className="flex justify-between gap-2 font-medium text-foreground">
-                <span>Effective:</span>
-                <span>{(effectiveTaxRate * 100).toFixed(2)}%</span>
-              </div>
-              <div className="flex justify-between gap-2 pt-1 border-t border-border/50">
-                <span>Marginal:</span>
-                <span>{((taxResult?.marginalRate ?? 0) * 100).toFixed(2)}%</span>
+              {/* Retirement Income Tax */}
+              <div className="space-y-0.5 pt-2 border-t border-border/50">
+                <div className="text-xs font-medium text-foreground/70 text-left">
+                  Retirement Income
+                </div>
+                <div className="flex justify-between gap-2">
+                  <span>Federal:</span>
+                  <span>
+                    {(
+                      ((retirementTaxResult?.federal ?? 0) / (retirementAnnualIncome || 1)) *
+                      100
+                    ).toFixed(2)}
+                    %
+                  </span>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <span>Provincial:</span>
+                  <span>
+                    {(
+                      ((retirementTaxResult?.provincial ?? 0) / (retirementAnnualIncome || 1)) *
+                      100
+                    ).toFixed(2)}
+                    %
+                  </span>
+                </div>
+                <div className="flex justify-between gap-2 font-medium text-foreground">
+                  <span>Effective:</span>
+                  <span>{((retirementTaxResult?.effectiveRate ?? 0) * 100).toFixed(2)}%</span>
+                </div>
+                <div className="flex justify-between gap-2 pt-1 border-t border-border/50">
+                  <span>Marginal:</span>
+                  <span>{((retirementTaxResult?.marginalRate ?? 0) * 100).toFixed(2)}%</span>
+                </div>
               </div>
             </div>
           ) : (
