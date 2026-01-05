@@ -22,7 +22,7 @@ export function StickyResultsSummary({ results, className }: StickyResultsSummar
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-6 text-base">
           <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
-            <span className="text-muted-foreground">Monthly Income:</span>
+            <span className="text-muted-foreground">Safe Withdrawal:</span>
             <div className="flex items-baseline gap-1.5">
               <span className="font-semibold tabular-nums">
                 {formatCurrency(results.monthlyIncomeToday)}

@@ -131,10 +131,10 @@ export function AssumptionsInputs({
       />
       <AssumptionInput
         id="preRetirementReturn"
-        label="Pre-Retirement Return"
+        label="Growth Rate (Working Years)"
         value={assumptions.preRetirementReturn}
         onChange={(v) => onAssumptionChange('preRetirementReturn', v)}
-        description="Expected annual investment return before retirement"
+        description="Expected investment growth while you're still saving"
         isPercent
         step={0.1}
         min={VALIDATION_BOUNDS.rates.min}
@@ -142,10 +142,10 @@ export function AssumptionsInputs({
       />
       <AssumptionInput
         id="retirementReturn"
-        label="Retirement Return"
+        label="Growth Rate (Retirement)"
         value={assumptions.retirementReturn}
         onChange={(v) => onAssumptionChange('retirementReturn', v)}
-        description="Conservative return rate during retirement"
+        description="More conservative rate after you stop working"
         isPercent
         step={0.1}
         min={VALIDATION_BOUNDS.rates.min}

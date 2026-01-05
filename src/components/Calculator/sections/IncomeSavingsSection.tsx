@@ -45,10 +45,10 @@ export function IncomeSavingsSection({
 
       <CurrencyInput
         id="annual-income"
-        label="Annual Income"
+        label="Gross Annual Income"
         value={values.annualIncome}
         onChange={handleAnnualIncomeChange}
-        helpText="Your current annual gross income"
+        helpText="Before taxes and deductions"
         disabled={disabled}
       />
 

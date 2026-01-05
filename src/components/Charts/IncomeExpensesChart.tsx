@@ -22,7 +22,7 @@ const chartConfig = {
     label: 'Amount',
   },
   income: {
-    label: 'Sustainable Income',
+    label: 'Safe Withdrawal',
     color: 'var(--chart-1)',
   },
   spending: {
@@ -45,7 +45,7 @@ export function IncomeExpensesChart({
   const data = useMemo(
     () => [
       {
-        name: 'Sustainable Income',
+        name: 'Safe Withdrawal',
         amount: sustainableIncomeToday,
         fill: 'var(--chart-1)',
       },
@@ -113,7 +113,7 @@ export function IncomeExpensesChart({
 
       <div className="mt-4 grid grid-cols-2 gap-4 text-center">
         <div className="rounded-lg bg-muted/50 p-3">
-          <div className="text-sm text-muted-foreground">Sustainable Income</div>
+          <div className="text-sm text-muted-foreground">Safe Withdrawal</div>
           <div className="text-xl font-semibold tabular-nums">
             {formatCurrency(sustainableIncomeToday)}/mo
           </div>

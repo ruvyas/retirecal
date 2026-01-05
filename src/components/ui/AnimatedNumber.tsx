@@ -29,6 +29,12 @@ export function AnimatedNumber({
   format = 'number',
   decimals = 0,
 }: AnimatedNumberProps) {
+  // Handle Infinity before animation - can't animate to/from Infinity (Infinity * 0 = NaN)
+  if (value === Infinity) {
+    const formattedValue = format === 'years' ? formatYears(Infinity) : '∞'
+    return <span className={cn('tabular-nums', className)}>{formattedValue}</span>
+  }
+
   const animatedValue = useAnimatedValue(value, { duration, disabled })
 
   const formattedValue =

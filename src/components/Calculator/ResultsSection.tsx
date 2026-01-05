@@ -98,14 +98,23 @@ export function ResultsSection({
     },
   ]
 
-  // Calculate effective tax rate from gross vs net income
+  // Calculate values in today's dollars for tooltip (consistent with displayed value)
+  const grossMonthlyIncomeToday =
+    results.grossMonthlyIncome / Math.pow(1 + inflationRate, yearsUntilRetirement)
+
+  // Effective tax rate stays the same (ratio is preserved through inflation adjustment)
   const effectiveTaxRate =
     results.grossMonthlyIncome > 0 ? 1 - results.monthlyIncome / results.grossMonthlyIncome : 0
 
   const monthlyIncomeSteps: FormulaStep[] = [
-    { label: 'Pre-tax monthly income', value: results.grossMonthlyIncome, format: 'currency' },
+    { label: "Pre-tax income (today's $)", value: grossMonthlyIncomeToday, format: 'currency' },
     { label: 'Effective tax rate', value: effectiveTaxRate, format: 'percent' },
-    { label: 'After-tax income', value: results.monthlyIncome, format: 'currency', isResult: true },
+    {
+      label: "After-tax income (today's $)",
+      value: results.monthlyIncomeToday,
+      format: 'currency',
+      isResult: true,
+    },
   ]
 
   const retirementRunwaySteps: FormulaStep[] = [
@@ -145,15 +154,15 @@ export function ResultsSection({
             <MetricCard
               title="Savings at Retirement"
               value={<AnimatedCurrency value={results.projectedSavings} />}
-              subtitle={`In ${results.yearsUntilRetirement} years`}
+              subtitle={`At age ${retirementAge} (in ${results.yearsUntilRetirement} years)`}
               tooltipTitle="How this is calculated"
               tooltipSteps={projectedSavingsSteps}
             />
 
             <MetricCard
-              title="Monthly Retirement Income"
+              title="Safe Monthly Withdrawal"
               value={<AnimatedCurrency value={results.monthlyIncomeToday} />}
-              subtitle="In today's dollars"
+              subtitle="In today's purchasing power"
               tooltipTitle="Income calculation"
               tooltipSteps={monthlyIncomeSteps}
             />
@@ -163,8 +172,8 @@ export function ResultsSection({
               value={<AnimatedNumber value={results.retirementRunway} format="years" />}
               subtitle={
                 results.retirementRunway === Infinity
-                  ? 'Your savings are sustainable'
-                  : 'How long your savings last'
+                  ? `Lasts beyond age ${lifeExpectancy}`
+                  : `Lasts until age ${Math.round(retirementAge + results.retirementRunway)}`
               }
               variant={
                 results.retirementRunway >= lifeExpectancy - retirementAge ? 'positive' : 'negative'

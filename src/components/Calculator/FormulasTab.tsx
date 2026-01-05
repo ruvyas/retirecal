@@ -88,7 +88,7 @@ export function FormulasTab({
               </thead>
               <tbody className="divide-y">
                 <tr>
-                  <td className="py-3">Monthly Income</td>
+                  <td className="py-3">Safe Withdrawal</td>
                   <td className="py-3 text-right tabular-nums font-medium">
                     {formatCurrency(results.monthlyIncomeToday)}
                   </td>
@@ -250,8 +250,8 @@ export function FormulasTab({
             </div>
           </FormulaCollapsible>
 
-          {/* Sustainable Income */}
-          <FormulaCollapsible title="Sustainable Income">
+          {/* Safe Withdrawal */}
+          <FormulaCollapsible title="Safe Withdrawal">
             <div className="space-y-4">
               <div>
                 <p className="text-sm text-muted-foreground mb-2">
@@ -282,12 +282,44 @@ export function FormulasTab({
                   </span>
                 </div>
                 <div className="flex justify-between border-t pt-2">
-                  <span className="text-muted-foreground">Gross Monthly Income</span>
+                  <span className="text-muted-foreground">Gross Monthly Income (future $)</span>
                   <span className="tabular-nums">{formatCurrency(results.grossMonthlyIncome)}</span>
                 </div>
-                <div className="flex justify-between font-medium">
-                  <span>After-Tax Monthly Income</span>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">After-Tax Income (future $)</span>
                   <span className="tabular-nums">{formatCurrency(results.monthlyIncome)}</span>
+                </div>
+              </div>
+
+              {/* Inflation adjustment to today's dollars */}
+              <div className="border-t pt-4">
+                <p className="text-sm text-muted-foreground mb-2">
+                  Converting to today&apos;s purchasing power
+                </p>
+                <code className="block rounded bg-muted p-3 text-sm">
+                  Today&apos;s $ = Future $ / (1 + i)<sup>n</sup>
+                </code>
+              </div>
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">After-Tax Income (future $)</span>
+                  <span className="tabular-nums">{formatCurrency(results.monthlyIncome)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">i (Inflation Rate)</span>
+                  <span className="tabular-nums">{formatPercent(inflationRate)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">n (Years Until Retirement)</span>
+                  <span className="tabular-nums">{yearsUntilRetirement}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Inflation Divisor</span>
+                  <span className="tabular-nums">{inflationMultiplier.toFixed(2)}x</span>
+                </div>
+                <div className="flex justify-between border-t pt-2 font-medium">
+                  <span>After-Tax Income (today&apos;s $)</span>
+                  <span className="tabular-nums">{formatCurrency(results.monthlyIncomeToday)}</span>
                 </div>
               </div>
             </div>
