@@ -1,5 +1,5 @@
 /**
- * 2025 Canadian Federal and Provincial Tax Brackets
+ * 2026 Canadian Federal and Provincial Tax Brackets
  * Source: https://www.taxtips.ca/marginal-tax-rates-in-canada.htm
  */
 
@@ -11,15 +11,15 @@ import type { Province, ProvinceInfo, TaxBracket } from '../types/tax'
 export const DEFAULT_PROVINCE: Province = 'ON'
 
 /**
- * 2025 Federal tax brackets
- * Note: 14.5% is blended rate (15% Jan-Jun, 14% Jul-Dec 2025)
+ * 2026 Federal tax brackets
+ * Source: CRA T4127 Payroll Deductions Formulas for January 1, 2026
  */
 export const FEDERAL_BRACKETS: TaxBracket[] = [
-  { min: 0, max: 57375, rate: 0.145 },
-  { min: 57375, max: 114750, rate: 0.205 },
-  { min: 114750, max: 177882, rate: 0.26 },
-  { min: 177882, max: 253414, rate: 0.2931 },
-  { min: 253414, max: null, rate: 0.33 },
+  { min: 0, max: 58523, rate: 0.14 },
+  { min: 58523, max: 117045, rate: 0.205 },
+  { min: 117045, max: 181440, rate: 0.26 },
+  { min: 181440, max: 258482, rate: 0.2929 },
+  { min: 258482, max: null, rate: 0.33 },
 ]
 
 /**

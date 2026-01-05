@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { StatusIndicator, deriveStatus } from './StatusIndicator'
 import { ProjectionChart, type ProjectionDataPoint } from '@/components/Charts/ProjectionChart'
 import { FormulaTooltip, type FormulaStep } from './FormulaTooltip'
 import { cn } from '@/lib/utils'
@@ -100,7 +99,6 @@ export function ResultsPanel({
     )
   }
 
-  const status = deriveStatus(results.incomeGap)
   const gapVariant = results.incomeGap >= 0 ? 'positive' : 'negative'
   const gapLabel = results.incomeGap >= 0 ? 'Surplus' : 'Gap'
 
@@ -166,17 +164,6 @@ export function ResultsPanel({
 
   return (
     <div className={cn('space-y-4', className)}>
-      <StatusIndicator
-        status={status}
-        message={
-          status === 'on-track'
-            ? 'Your retirement plan looks healthy!'
-            : status === 'attention-needed'
-              ? 'Consider increasing your savings rate.'
-              : 'Significant adjustments may be needed.'
-        }
-      />
-
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <ResultCard
           title="Projected Savings at Retirement"

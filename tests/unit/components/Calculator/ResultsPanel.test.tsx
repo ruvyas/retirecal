@@ -103,24 +103,6 @@ describe('ResultsPanel', () => {
     })
   })
 
-  describe('status indicator', () => {
-    it('shows on-track status for positive gap', () => {
-      render(<ResultsPanel results={mockResults} />)
-      expect(screen.getByText('On Track')).toBeInTheDocument()
-    })
-
-    it('shows significant-gap status for large negative gap', () => {
-      render(<ResultsPanel results={negativeGapResults} />)
-      expect(screen.getByText('Significant Gap')).toBeInTheDocument()
-    })
-
-    it('shows attention-needed status for small negative gap', () => {
-      const attentionResults = { ...mockResults, incomeGap: -300 }
-      render(<ResultsPanel results={attentionResults} />)
-      expect(screen.getByText('Attention Needed')).toBeInTheDocument()
-    })
-  })
-
   describe('gap/surplus display', () => {
     it('shows Surplus label for positive gap', () => {
       render(<ResultsPanel results={mockResults} />)
@@ -160,7 +142,6 @@ describe('ResultsPanel', () => {
     it('handles zero gap', () => {
       const zeroGapResults = { ...mockResults, incomeGap: 0 }
       render(<ResultsPanel results={zeroGapResults} />)
-      expect(screen.getByText('On Track')).toBeInTheDocument()
       expect(screen.getByText('Monthly Surplus')).toBeInTheDocument()
     })
 

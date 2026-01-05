@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { StatusIndicator, deriveStatus } from './StatusIndicator'
 import { ProjectionChart, type ProjectionDataPoint } from '@/components/Charts/ProjectionChart'
 import { IncomeExpensesChart } from '@/components/Charts/IncomeExpensesChart'
 import { FormulasTab } from './FormulasTab'
@@ -80,7 +79,6 @@ export function ResultsSection({
   inflationRate,
   className,
 }: ResultsSectionProps) {
-  const status = deriveStatus(results.incomeGap)
   const yearsUntilRetirement = retirementAge - currentAge
 
   // Calculate inflation-adjusted spending at retirement for the chart
@@ -136,18 +134,6 @@ export function ResultsSection({
 
   return (
     <div className={cn('space-y-6', className)}>
-      <StatusIndicator
-        status={status}
-        message={
-          status === 'on-track'
-            ? 'Your retirement plan looks healthy!'
-            : status === 'attention-needed'
-              ? 'Consider increasing your savings rate.'
-              : 'Significant adjustments may be needed.'
-        }
-        className="p-4 text-base"
-      />
-
       <Tabs defaultValue="results" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="results">Results</TabsTrigger>

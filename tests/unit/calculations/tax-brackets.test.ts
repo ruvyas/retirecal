@@ -14,26 +14,26 @@ import { FEDERAL_BRACKETS, PROVINCIAL_BRACKETS } from '@/lib/calculations/tax-br
 describe('calculateBracketTax', () => {
   describe('federal brackets', () => {
     it('calculates tax for income in first bracket only ($50,000)', () => {
-      // $50,000 at 14.5% = $7,250
+      // $50,000 at 14% = $7,000
       const result = calculateBracketTax(50000, FEDERAL_BRACKETS)
-      expect(result).toBeCloseTo(7250, 0)
+      expect(result).toBeCloseTo(7000, 0)
     })
 
     it('calculates tax spanning two brackets ($80,000)', () => {
-      // First bracket: $57,375 × 14.5% = $8,319.38
-      // Second bracket: ($80,000 - $57,375) × 20.5% = $4,638.13
-      // Total: ~$12,957.51
+      // First bracket: $58,523 × 14% = $8,193.22
+      // Second bracket: ($80,000 - $58,523) × 20.5% = $4,402.79
+      // Total: ~$12,596
       const result = calculateBracketTax(80000, FEDERAL_BRACKETS)
-      expect(result).toBeCloseTo(12957.5, 0)
+      expect(result).toBeCloseTo(12596, 0)
     })
 
     it('calculates tax spanning multiple brackets ($150,000)', () => {
-      // First: $57,375 × 14.5% = $8,319.38
-      // Second: $57,375 × 20.5% = $11,761.88
-      // Third: ($150,000 - $114,750) × 26% = $9,165
-      // Total: ~$29,246.26
+      // First: $58,523 × 14% = $8,193.22
+      // Second: $58,522 × 20.5% = $11,997.01
+      // Third: ($150,000 - $117,045) × 26% = $8,568.30
+      // Total: ~$28,758.53
       const result = calculateBracketTax(150000, FEDERAL_BRACKETS)
-      expect(result).toBeCloseTo(29246, 0)
+      expect(result).toBeCloseTo(28759, 0)
     })
 
     it('calculates tax for top bracket income ($300,000)', () => {
@@ -57,7 +57,7 @@ describe('calculateBracketTax', () => {
 
     it('handles very small income amounts', () => {
       const result = calculateBracketTax(100, FEDERAL_BRACKETS)
-      expect(result).toBeCloseTo(14.5, 0) // 100 × 14.5%
+      expect(result).toBeCloseTo(14, 0) // 100 × 14%
     })
   })
 
@@ -104,22 +104,22 @@ describe('calculateBracketTax', () => {
 describe('getMarginalRate', () => {
   describe('federal brackets', () => {
     it('returns first bracket rate for low income ($50,000)', () => {
-      // $50,000 is in first bracket (0 - $57,375) at 14.5%
-      expect(getMarginalRate(50000, FEDERAL_BRACKETS)).toBe(0.145)
+      // $50,000 is in first bracket (0 - $58,523) at 14%
+      expect(getMarginalRate(50000, FEDERAL_BRACKETS)).toBe(0.14)
     })
 
     it('returns second bracket rate for middle income ($80,000)', () => {
-      // $80,000 is in second bracket ($57,375 - $114,750) at 20.5%
+      // $80,000 is in second bracket ($58,523 - $117,045) at 20.5%
       expect(getMarginalRate(80000, FEDERAL_BRACKETS)).toBe(0.205)
     })
 
     it('returns third bracket rate ($150,000)', () => {
-      // $150,000 is in third bracket ($114,750 - $177,882) at 26%
+      // $150,000 is in third bracket ($117,045 - $181,440) at 26%
       expect(getMarginalRate(150000, FEDERAL_BRACKETS)).toBe(0.26)
     })
 
     it('returns top bracket rate for high income ($300,000)', () => {
-      // $300,000 is in top bracket ($253,414+) at 33%
+      // $300,000 is in top bracket ($258,482+) at 33%
       expect(getMarginalRate(300000, FEDERAL_BRACKETS)).toBe(0.33)
     })
 
@@ -136,8 +136,8 @@ describe('getMarginalRate', () => {
     })
 
     it('handles income at exact bracket boundary', () => {
-      // At exactly $57,375 should be in second bracket
-      expect(getMarginalRate(57375, FEDERAL_BRACKETS)).toBe(0.205)
+      // At exactly $58,523 should be in second bracket
+      expect(getMarginalRate(58523, FEDERAL_BRACKETS)).toBe(0.205)
     })
   })
 
