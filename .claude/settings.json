@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(*)",
+      "Search(*)",
+      "Edit(*)",
+      "Write(*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_evaluate",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_navigate_back",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_close",
+      "Bash(bun run build:*)",
+      "Bash(bun run lint:file:*)",
+      "Bash(bun run test:*)",
+      "Bash(bun run test:file:*)",
+      "Bash(bun run typecheck:*)",
+      "Bash(bun test:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun run format || true"
+          }
+        ]
+      }
+    ]
+  }
+}
