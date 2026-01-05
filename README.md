@@ -1,5 +1,21 @@
-# RetireCal - A comprehensive retirement calculator for Canadians
+# RetireCal
 
----
+A Canadian retirement calculator. Projects portfolio growth, simulates withdrawals, and visualizes your financial future.
 
-A comprehensive retirement calculator that projects portfolio growth, simulates tax-optimized withdrawals, and visualizes your financial future through retirement.
+## Features
+
+- RRSP, TFSA, and non-registered account support
+- Provincial tax calculations
+- Portfolio projection charts
+- Runs entirely in-browser (no backend)
+
+## Tech Stack
+
+React 19 · Vite · TypeScript · Tailwind CSS · Shadcn UI
+
+## Development
+
+```sh
+bun install
+bun dev
+```
