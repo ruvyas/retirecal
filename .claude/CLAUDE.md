@@ -28,7 +28,7 @@ bun run lint                    # All files
 | Tool         | Version | Purpose                   |
 | ------------ | ------- | ------------------------- |
 | Bun          | latest  | Package manager & runtime |
-| React        | 18.x    | UI framework              |
+| React        | 19.x    | UI framework              |
 | Vite         | 5.x     | Build tool & dev server   |
 | TypeScript   | 5.x     | Type safety               |
 | Tailwind CSS | 3.x     | Styling                   |
