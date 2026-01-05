@@ -2,6 +2,8 @@
 
 A Canadian retirement calculator. Projects portfolio growth, simulates withdrawals, and visualizes your financial future.
 
+![RetireCal Screenshot](/screenshots/image.png)
+
 ## Features
 
 - RRSP, TFSA, and non-registered account support
