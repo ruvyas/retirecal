@@ -1,6 +1,6 @@
 # RetireCal
 
-A Canadian retirement calculator. Projects portfolio growth, simulates withdrawals, and visualizes your financial future. Visit (https://ruvyas.github.io/retirecal/)[https://ruvyas.github.io/retirecal/}
+A Canadian retirement calculator. Projects portfolio growth, simulates withdrawals, and visualizes your financial future. Visit (https://ruvyas.github.io/retirecal/)[https://ruvyas.github.io/retirecal/]
 
 ![RetireCal Screenshot](/screenshots/image.png)
 
