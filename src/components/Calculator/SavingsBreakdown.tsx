@@ -22,7 +22,7 @@ export function SavingsBreakdown({
   const [isOpen, setIsOpen] = useState(false)
   const contentId = useId()
 
-  const total = value.rrsp + value.tfsa + value.nonRegistered
+  const total = value.rrsp + value.tfsa + value.nonRegistered + value.cash
 
   const handleRrspChange = useCallback(
     (rrsp: number) => {
@@ -41,6 +41,13 @@ export function SavingsBreakdown({
   const handleNonRegisteredChange = useCallback(
     (nonRegistered: number) => {
       onChange({ ...value, nonRegistered })
+    },
+    [value, onChange]
+  )
+
+  const handleCashChange = useCallback(
+    (cash: number) => {
+      onChange({ ...value, cash })
     },
     [value, onChange]
   )
@@ -93,6 +100,14 @@ export function SavingsBreakdown({
           value={value.nonRegistered}
           onChange={handleNonRegisteredChange}
           helpText="Non-registered investment accounts"
+          disabled={disabled}
+        />
+        <CurrencyInput
+          id="savings-cash"
+          label="Cash / Savings Account"
+          value={value.cash}
+          onChange={handleCashChange}
+          helpText="Cash savings (0% growth)"
           disabled={disabled}
         />
       </CollapsibleContent>

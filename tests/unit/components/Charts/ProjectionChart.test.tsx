@@ -17,6 +17,7 @@ function createDataPoint(
     growthAmount: overrides.savings * 0.06,
     returnRate: overrides.isRetirement ? 0.04 : 0.06,
     postTaxIncome: overrides.isRetirement ? 35000 : 0,
+    postTaxIncomeToday: overrides.isRetirement ? 28000 : 0,
     cumulativeContributions: 0,
     previousSavings: 0,
     ...overrides,

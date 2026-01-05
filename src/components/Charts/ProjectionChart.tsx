@@ -16,6 +16,7 @@ export interface ProjectionDataPoint {
   growthAmount: number
   returnRate: number
   postTaxIncome: number
+  postTaxIncomeToday: number
   cumulativeContributions: number
   previousSavings: number
 }

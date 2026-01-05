@@ -1,7 +1,8 @@
 import { useCallback, useRef, useEffect } from 'react'
 import { AgeSlider } from '../AgeSlider'
+import { ProvinceSelector } from '../ProvinceSelector'
 import { VALIDATION_BOUNDS } from '@/lib/types/calculator'
-import type { CalculatorInputs } from '@/lib/types/calculator'
+import type { CalculatorInputs, Province } from '@/lib/types/calculator'
 
 interface AboutYouSectionProps {
   values: CalculatorInputs
@@ -35,10 +36,17 @@ export function AboutYouSection({ values, onChange, disabled = false }: AboutYou
     [onChange]
   )
 
+  const handleProvinceChange = useCallback(
+    (province: Province) => {
+      onChange({ ...valuesRef.current, province })
+    },
+    [onChange]
+  )
+
   return (
     <div className="space-y-6">
       <p className="text-base text-muted-foreground">
-        Tell us about your current age and when you plan to retire.
+        Tell us about yourself and when you plan to retire.
       </p>
       <div className="grid gap-8 sm:grid-cols-2">
         <AgeSlider
@@ -61,6 +69,11 @@ export function AboutYouSection({ values, onChange, disabled = false }: AboutYou
           disabled={disabled}
         />
       </div>
+      <ProvinceSelector
+        value={values.province}
+        onChange={handleProvinceChange}
+        disabled={disabled}
+      />
     </div>
   )
 }

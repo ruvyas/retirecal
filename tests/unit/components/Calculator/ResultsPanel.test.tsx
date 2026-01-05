@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { ResultsPanel } from '../../../../src/components/Calculator/ResultsPanel'
 import type { CalculatorResults } from '../../../../src/lib/types/calculator'
 import type { ProjectionDataPoint } from '../../../../src/components/Charts/ProjectionChart'
@@ -11,6 +12,11 @@ const mockResults: CalculatorResults = {
   monthlyIncome: 5000,
   monthlyIncomeToday: 2760, // Discounted by ~2% inflation over 30 years
   incomeGap: 500,
+  // Breakdown values
+  savingsGrowth: 600000,
+  contributionGrowth: 900000,
+  grossMonthlyIncome: 6667,
+  inflationAdjustedSpending: 54000,
 }
 
 // Helper to create a complete ProjectionDataPoint with defaults
@@ -25,6 +31,7 @@ function createDataPoint(
     growthAmount: overrides.savings * 0.06,
     returnRate: overrides.isRetirement ? 0.04 : 0.06,
     postTaxIncome: overrides.isRetirement ? 35000 : 0,
+    postTaxIncomeToday: overrides.isRetirement ? 28000 : 0,
     cumulativeContributions: 0,
     previousSavings: 0,
     ...overrides,
@@ -42,6 +49,14 @@ const mockProjectionData: ProjectionDataPoint[] = [
 const negativeGapResults: CalculatorResults = {
   ...mockResults,
   incomeGap: -1000,
+}
+
+const mockAssumptions = {
+  inflationRate: 0.02,
+  preRetirementReturn: 0.055,
+  retirementReturn: 0.035,
+  taxRate: null,
+  lifeExpectancy: 95,
 }
 
 describe('ResultsPanel', () => {
@@ -153,6 +168,62 @@ describe('ResultsPanel', () => {
       const infiniteResults = { ...mockResults, retirementRunway: Infinity }
       render(<ResultsPanel results={infiniteResults} />)
       expect(screen.getByText('Indefinitely')).toBeInTheDocument()
+    })
+  })
+
+  describe('tooltips', () => {
+    // Note: Radix UI tooltips use portals and may not reliably show content on hover in jsdom.
+    // We test that the tooltip triggers are correctly configured with aria-labels.
+
+    it('projected savings has tooltip trigger with correct aria-label', () => {
+      render(<ResultsPanel results={mockResults} />)
+
+      // The value should be wrapped in a tooltip trigger with the correct aria-label
+      const triggers = screen.getAllByRole('button')
+      const savingsTrigger = triggers.find((t) =>
+        t.getAttribute('aria-label')?.includes('How this is calculated')
+      )
+      expect(savingsTrigger).toBeInTheDocument()
+    })
+
+    it('monthly income has tooltip trigger with correct aria-label', () => {
+      render(<ResultsPanel results={mockResults} />)
+
+      const triggers = screen.getAllByRole('button')
+      const incomeTrigger = triggers.find((t) =>
+        t.getAttribute('aria-label')?.includes('Income calculation')
+      )
+      expect(incomeTrigger).toBeInTheDocument()
+    })
+
+    it('retirement runway has tooltip trigger with correct aria-label', () => {
+      render(<ResultsPanel results={mockResults} assumptions={mockAssumptions} />)
+
+      const triggers = screen.getAllByRole('button')
+      const runwayTrigger = triggers.find((t) =>
+        t.getAttribute('aria-label')?.includes('Retirement runway breakdown')
+      )
+      expect(runwayTrigger).toBeInTheDocument()
+    })
+
+    it('income gap has tooltip trigger with correct aria-label', () => {
+      render(<ResultsPanel results={mockResults} />)
+
+      const triggers = screen.getAllByRole('button')
+      const gapTrigger = triggers.find((t) =>
+        t.getAttribute('aria-label')?.includes('Income gap breakdown')
+      )
+      expect(gapTrigger).toBeInTheDocument()
+    })
+
+    it('tooltip triggers are keyboard accessible', async () => {
+      const user = userEvent.setup()
+      render(<ResultsPanel results={mockResults} />)
+
+      // Tab to the first result value
+      await user.tab()
+      const focusedElement = document.activeElement
+      expect(focusedElement).toHaveAttribute('aria-label')
     })
   })
 

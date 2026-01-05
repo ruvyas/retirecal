@@ -80,31 +80,26 @@ export function EnhancedChartTooltip({ active, payload }: EnhancedChartTooltipPr
             )}
             <div className="flex justify-between items-center text-sm">
               <span className="text-muted-foreground">Withdrawal</span>
-              <div className="text-right">
-                <span className="font-medium text-orange-600 dark:text-orange-400 tabular-nums">
-                  -{formatCurrency(data.originalWithdrawal)}
-                </span>
-                {data.annualWithdrawal > 0 && (
-                  <div className="text-xs text-muted-foreground">
-                    ({formatCurrency(data.annualWithdrawal)} inflation-adjusted)
-                  </div>
-                )}
-              </div>
+              <span className="font-medium text-orange-600 dark:text-orange-400 tabular-nums">
+                -{formatCurrency(data.originalWithdrawal)}
+              </span>
             </div>
           </>
         )}
 
-        {data.phase === 'retirement' && data.postTaxIncome > 0 && (
+        {data.phase === 'retirement' && data.postTaxIncomeToday > 0 && (
           <div className="border-t pt-2 mt-2">
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Post-Tax Income</span>
               <span className="font-semibold tabular-nums">
-                {formatCurrency(data.postTaxIncome)}/yr
+                {formatCurrency(data.postTaxIncomeToday)}/yr
               </span>
             </div>
             <div className="flex justify-between items-center text-sm text-muted-foreground">
               <span>Monthly</span>
-              <span className="tabular-nums">{formatCurrency(data.postTaxIncome / 12)}/mo</span>
+              <span className="tabular-nums">
+                {formatCurrency(data.postTaxIncomeToday / 12)}/mo
+              </span>
             </div>
           </div>
         )}

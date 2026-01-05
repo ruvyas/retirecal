@@ -8,6 +8,7 @@ const defaultValue: SavingsBreakdownType = {
   rrsp: 50000,
   tfsa: 30000,
   nonRegistered: 20000,
+  cash: 0,
 }
 
 describe('SavingsBreakdown', () => {
@@ -81,13 +82,13 @@ describe('SavingsBreakdown', () => {
 
   describe('sum calculation', () => {
     it('shows correct total for different values', () => {
-      const value = { rrsp: 10000, tfsa: 5000, nonRegistered: 2500 }
+      const value = { rrsp: 10000, tfsa: 5000, nonRegistered: 2500, cash: 0 }
       render(<SavingsBreakdown value={value} onChange={() => {}} />)
       expect(screen.getByText('$17,500')).toBeInTheDocument()
     })
 
     it('shows $0 when all values are zero', () => {
-      const value = { rrsp: 0, tfsa: 0, nonRegistered: 0 }
+      const value = { rrsp: 0, tfsa: 0, nonRegistered: 0, cash: 0 }
       render(<SavingsBreakdown value={value} onChange={() => {}} />)
       expect(screen.getByText('$0')).toBeInTheDocument()
     })

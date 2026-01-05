@@ -102,7 +102,7 @@ describe('useCalculator', () => {
       act(() => {
         result.current.setInputs({
           ...DEFAULT_INPUTS,
-          savings: { rrsp: 100000, tfsa: 50000, nonRegistered: 50000 },
+          savings: { rrsp: 100000, tfsa: 50000, nonRegistered: 50000, cash: 0 },
         })
       })
 
@@ -252,16 +252,17 @@ describe('computeResults', () => {
     currentAge: 30,
     retirementAge: 65,
     annualIncome: 75000,
-    savings: { rrsp: 50000, tfsa: 30000, nonRegistered: 20000 },
+    savings: { rrsp: 50000, tfsa: 30000, nonRegistered: 20000, cash: 0 },
     contributions: { rrsp: 200, tfsa: 200, nonRegistered: 100 },
     annualRetirementSpending: 50000,
+    province: 'ON',
   }
 
   const testAssumptions: Assumptions = {
     inflationRate: 0.02,
     preRetirementReturn: 0.055,
     retirementReturn: 0.035,
-    taxRate: 0.25,
+    taxRate: 0.25, // Manual override for testing
     lifeExpectancy: 95,
   }
 
@@ -293,7 +294,7 @@ describe('computeResults', () => {
 
     // With 25% tax rate, after-tax income should be 75% of gross
     expect(resultsWithTax.monthlyIncome).toBeCloseTo(
-      resultsNoTax.monthlyIncome * (1 - testAssumptions.taxRate),
+      resultsNoTax.monthlyIncome * (1 - testAssumptions.taxRate!),
       2
     )
   })
@@ -321,7 +322,7 @@ describe('computeResults', () => {
   it('handles zero savings', () => {
     const zeroSavingsInputs = {
       ...testInputs,
-      savings: { rrsp: 0, tfsa: 0, nonRegistered: 0 },
+      savings: { rrsp: 0, tfsa: 0, nonRegistered: 0, cash: 0 },
       contributions: { rrsp: 0, tfsa: 0, nonRegistered: 0 },
     }
     const results = computeResults(zeroSavingsInputs, testAssumptions)
@@ -358,12 +359,85 @@ describe('computeResults', () => {
     const invalidInputs = {
       ...testInputs,
       currentAge: -10, // Invalid
-      savings: { rrsp: -100, tfsa: -200, nonRegistered: -300 }, // Invalid
+      savings: { rrsp: -100, tfsa: -200, nonRegistered: -300, cash: 0 }, // Invalid
     }
     // Should not throw, should sanitize and calculate
     const results = computeResults(invalidInputs, testAssumptions)
     expect(Number.isFinite(results.projectedSavings)).toBe(true)
     expect(results.projectedSavings).toBeGreaterThanOrEqual(0)
+  })
+
+  describe('breakdown values', () => {
+    it('returns savingsGrowth as growth of initial savings', () => {
+      const results = computeResults(testInputs, testAssumptions)
+      const totalSavings =
+        testInputs.savings.rrsp + testInputs.savings.tfsa + testInputs.savings.nonRegistered
+      // savingsGrowth should be greater than initial due to compound growth
+      expect(results.savingsGrowth).toBeGreaterThan(totalSavings)
+    })
+
+    it('returns contributionGrowth from monthly contributions', () => {
+      const results = computeResults(testInputs, testAssumptions)
+      const monthlyContribution =
+        testInputs.contributions.rrsp +
+        testInputs.contributions.tfsa +
+        testInputs.contributions.nonRegistered
+      const yearsUntilRetirement = testInputs.retirementAge - testInputs.currentAge
+      const totalContributed = monthlyContribution * 12 * yearsUntilRetirement
+      // contributionGrowth should be greater than raw contributions due to compound growth
+      expect(results.contributionGrowth).toBeGreaterThan(totalContributed)
+    })
+
+    it('projectedSavings equals savingsGrowth + contributionGrowth', () => {
+      const results = computeResults(testInputs, testAssumptions)
+      expect(results.projectedSavings).toBeCloseTo(
+        results.savingsGrowth + results.contributionGrowth,
+        2
+      )
+    })
+
+    it('returns grossMonthlyIncome as pre-tax income', () => {
+      const results = computeResults(testInputs, testAssumptions)
+      // grossMonthlyIncome should be higher than monthlyIncome (after-tax)
+      expect(results.grossMonthlyIncome).toBeGreaterThan(results.monthlyIncome)
+    })
+
+    it('monthlyIncome equals grossMonthlyIncome * (1 - taxRate)', () => {
+      const results = computeResults(testInputs, testAssumptions)
+      expect(results.monthlyIncome).toBeCloseTo(
+        results.grossMonthlyIncome * (1 - testAssumptions.taxRate!),
+        2
+      )
+    })
+
+    it('returns inflationAdjustedSpending correctly', () => {
+      const results = computeResults(testInputs, testAssumptions)
+      const yearsUntilRetirement = testInputs.retirementAge - testInputs.currentAge
+      const expectedInflationAdjusted =
+        testInputs.annualRetirementSpending *
+        Math.pow(1 + testAssumptions.inflationRate, yearsUntilRetirement)
+      expect(results.inflationAdjustedSpending).toBeCloseTo(expectedInflationAdjusted, 2)
+    })
+
+    it('incomeGap uses inflationAdjustedSpending', () => {
+      const results = computeResults(testInputs, testAssumptions)
+      const expectedGap = results.monthlyIncome - results.inflationAdjustedSpending / 12
+      expect(results.incomeGap).toBeCloseTo(expectedGap, 2)
+    })
+
+    it('breakdown values are 0 when savings and contributions are 0', () => {
+      const zeroInputs = {
+        ...testInputs,
+        savings: { rrsp: 0, tfsa: 0, nonRegistered: 0, cash: 0 },
+        contributions: { rrsp: 0, tfsa: 0, nonRegistered: 0 },
+      }
+      const results = computeResults(zeroInputs, testAssumptions)
+      expect(results.savingsGrowth).toBe(0)
+      expect(results.contributionGrowth).toBe(0)
+      expect(results.grossMonthlyIncome).toBe(0)
+      // inflationAdjustedSpending should still be calculated based on annualRetirementSpending
+      expect(results.inflationAdjustedSpending).toBeGreaterThan(0)
+    })
   })
 })
 
@@ -411,8 +485,8 @@ describe('DEFAULT_ASSUMPTIONS', () => {
       DEFAULT_ASSUMPTIONS.inflationRate
     )
     expect(DEFAULT_ASSUMPTIONS.retirementReturn).toBeGreaterThan(0)
-    expect(DEFAULT_ASSUMPTIONS.taxRate).toBeGreaterThan(0)
-    expect(DEFAULT_ASSUMPTIONS.taxRate).toBeLessThan(1)
+    // taxRate is null by default (uses bracket calculation)
+    expect(DEFAULT_ASSUMPTIONS.taxRate).toBeNull()
     expect(DEFAULT_ASSUMPTIONS.lifeExpectancy).toBeGreaterThan(60)
   })
 })
@@ -422,16 +496,17 @@ describe('generateProjectionData', () => {
     currentAge: 30,
     retirementAge: 65,
     annualIncome: 75000,
-    savings: { rrsp: 50000, tfsa: 30000, nonRegistered: 20000 },
+    savings: { rrsp: 50000, tfsa: 30000, nonRegistered: 20000, cash: 0 },
     contributions: { rrsp: 200, tfsa: 200, nonRegistered: 100 },
     annualRetirementSpending: 50000,
+    province: 'ON',
   }
 
   const testAssumptions: Assumptions = {
     inflationRate: 0.02,
     preRetirementReturn: 0.055,
     retirementReturn: 0.035,
-    taxRate: 0.25,
+    taxRate: 0.25, // Manual override for testing
     lifeExpectancy: 95,
   }
 
@@ -483,7 +558,7 @@ describe('generateProjectionData', () => {
   it('handles zero savings scenario', () => {
     const zeroInputs = {
       ...testInputs,
-      savings: { rrsp: 0, tfsa: 0, nonRegistered: 0 },
+      savings: { rrsp: 0, tfsa: 0, nonRegistered: 0, cash: 0 },
       contributions: { rrsp: 0, tfsa: 0, nonRegistered: 0 },
     }
 

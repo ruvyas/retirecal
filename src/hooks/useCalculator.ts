@@ -10,12 +10,13 @@ import {
   calculateInflationAdjustedRunway,
   calculateSustainableIncome,
 } from '@/lib/calculations/retirement'
+import { calculateCanadianTax } from '@/lib/calculations/tax'
+import { DEFAULT_PROVINCE } from '@/lib/calculations/tax-brackets'
 import type { ProjectionDataPoint } from '@/components/Charts/ProjectionChart'
 import {
   DEFAULT_INFLATION_RATE,
   DEFAULT_PRE_RETIREMENT_RETURN_MODERATE,
   DEFAULT_RETIREMENT_RETURN,
-  DEFAULT_WITHDRAWAL_TAX_RATE,
   DEFAULT_LIFE_EXPECTANCY,
 } from '@/lib/calculations/constants'
 import { validateInputs, sanitizeInputs, type ValidationErrors } from '@/lib/utils/validators'
@@ -30,6 +31,7 @@ const DEFAULT_INPUTS: CalculatorInputs = {
     rrsp: 50000,
     tfsa: 30000,
     nonRegistered: 20000,
+    cash: 0,
   },
   contributions: {
     rrsp: 200,
@@ -37,6 +39,7 @@ const DEFAULT_INPUTS: CalculatorInputs = {
     nonRegistered: 100,
   },
   annualRetirementSpending: 50000,
+  province: DEFAULT_PROVINCE,
 }
 
 // Default assumptions based on constants
@@ -44,7 +47,7 @@ const DEFAULT_ASSUMPTIONS: Assumptions = {
   inflationRate: DEFAULT_INFLATION_RATE,
   preRetirementReturn: DEFAULT_PRE_RETIREMENT_RETURN_MODERATE,
   retirementReturn: DEFAULT_RETIREMENT_RETURN,
-  taxRate: DEFAULT_WITHDRAWAL_TAX_RATE,
+  taxRate: null, // Use bracket calculation by default
   lifeExpectancy: DEFAULT_LIFE_EXPECTANCY,
 }
 
@@ -96,8 +99,13 @@ function generateProjectionData(
   assumptions: Assumptions
 ): ProjectionDataPoint[] {
   const safeInputs = sanitizeInputs(inputs)
-  const totalSavings =
+  // Invested savings (grow with returns)
+  const investedSavings =
     safeInputs.savings.rrsp + safeInputs.savings.tfsa + safeInputs.savings.nonRegistered
+  // Cash savings (0% growth)
+  const cashSavings = safeInputs.savings.cash
+  const totalSavings = investedSavings + cashSavings
+
   const monthlyContribution =
     safeInputs.contributions.rrsp +
     safeInputs.contributions.tfsa +
@@ -113,8 +121,9 @@ function generateProjectionData(
     const yearsFromNow = age - safeInputs.currentAge
     const monthsFromNow = yearsFromNow * 12
 
-    const savingsGrowth = calculateFutureValue(
-      totalSavings,
+    // Only invested savings grow with returns
+    const investedGrowth = calculateFutureValue(
+      investedSavings,
       assumptions.preRetirementReturn,
       yearsFromNow
     )
@@ -124,7 +133,8 @@ function generateProjectionData(
       monthsFromNow
     )
 
-    const currentTotalSavings = savingsGrowth + contributionGrowth
+    // Cash stays flat (0% growth)
+    const currentTotalSavings = investedGrowth + contributionGrowth + cashSavings
     cumulativeContributions = annualContribution * yearsFromNow
 
     // Calculate growth for this year
@@ -142,6 +152,7 @@ function generateProjectionData(
       growthAmount: Math.max(0, growthAmount),
       returnRate: assumptions.preRetirementReturn,
       postTaxIncome: 0,
+      postTaxIncomeToday: 0,
       cumulativeContributions,
       previousSavings,
     })
@@ -171,7 +182,20 @@ function generateProjectionData(
     currentSavings = Math.max(0, currentSavings) // Don't go negative
 
     // Calculate post-tax income (withdrawal after tax)
-    const postTaxIncome = currentWithdrawal * (1 - assumptions.taxRate)
+    // Use bracket calculation if taxRate is null, otherwise use override
+    const effectiveTaxRate =
+      assumptions.taxRate !== null
+        ? assumptions.taxRate
+        : calculateCanadianTax(currentWithdrawal, safeInputs.province).effectiveRate
+    const postTaxIncome = currentWithdrawal * (1 - effectiveTaxRate)
+
+    // Calculate post-tax income in today's dollars (using today's spending for tax rate)
+    const effectiveTaxRateToday =
+      assumptions.taxRate !== null
+        ? assumptions.taxRate
+        : calculateCanadianTax(safeInputs.annualRetirementSpending, safeInputs.province)
+            .effectiveRate
+    const postTaxIncomeToday = safeInputs.annualRetirementSpending * (1 - effectiveTaxRateToday)
 
     data.push({
       age,
@@ -184,6 +208,7 @@ function generateProjectionData(
       growthAmount: Math.max(0, growthAmount),
       returnRate: assumptions.retirementReturn,
       postTaxIncome,
+      postTaxIncomeToday,
       cumulativeContributions,
       previousSavings,
     })
@@ -208,8 +233,12 @@ function computeResults(inputs: CalculatorInputs, assumptions: Assumptions): Cal
   // Sanitize inputs to prevent calculation errors
   const safeInputs = sanitizeInputs(inputs)
 
-  const totalSavings =
+  // Invested savings (grow with returns)
+  const investedSavings =
     safeInputs.savings.rrsp + safeInputs.savings.tfsa + safeInputs.savings.nonRegistered
+  // Cash savings (0% growth)
+  const cashSavings = safeInputs.savings.cash
+
   const monthlyContribution =
     safeInputs.contributions.rrsp +
     safeInputs.contributions.tfsa +
@@ -217,9 +246,9 @@ function computeResults(inputs: CalculatorInputs, assumptions: Assumptions): Cal
   const yearsUntilRetirement = safeInputs.retirementAge - safeInputs.currentAge
   const monthsUntilRetirement = yearsUntilRetirement * 12
 
-  // Growth of existing savings until retirement
+  // Growth of existing invested savings until retirement (cash stays flat)
   const savingsGrowth = calculateFutureValue(
-    totalSavings,
+    investedSavings,
     assumptions.preRetirementReturn,
     yearsUntilRetirement
   )
@@ -231,7 +260,8 @@ function computeResults(inputs: CalculatorInputs, assumptions: Assumptions): Cal
     monthsUntilRetirement
   )
 
-  const projectedSavings = savingsGrowth + contributionGrowth
+  // Total at retirement: invested growth + contribution growth + cash (unchanged)
+  const projectedSavings = savingsGrowth + contributionGrowth + cashSavings
 
   // Retirement duration based on life expectancy
   const retirementYears = assumptions.lifeExpectancy - safeInputs.retirementAge
@@ -248,8 +278,16 @@ function computeResults(inputs: CalculatorInputs, assumptions: Assumptions): Cal
     retirementYears
   )
 
+  // Calculate effective tax rate
+  // Use bracket calculation based on annual income if taxRate is null
+  const grossAnnualIncome = grossMonthlyIncome * 12
+  const effectiveTaxRate =
+    assumptions.taxRate !== null
+      ? assumptions.taxRate
+      : calculateCanadianTax(grossAnnualIncome, safeInputs.province).effectiveRate
+
   // Apply tax rate to get after-tax income
-  const monthlyIncome = grossMonthlyIncome * (1 - assumptions.taxRate)
+  const monthlyIncome = grossMonthlyIncome * (1 - effectiveTaxRate)
 
   // Calculate runway using inflation-adjusted spending with proper inflation accounting
   const retirementRunway = calculateInflationAdjustedRunway(
@@ -274,6 +312,11 @@ function computeResults(inputs: CalculatorInputs, assumptions: Assumptions): Cal
     monthlyIncome,
     monthlyIncomeToday,
     incomeGap,
+    // Breakdown values for formula explanations
+    savingsGrowth,
+    contributionGrowth,
+    grossMonthlyIncome,
+    inflationAdjustedSpending,
   }
 }
 
@@ -323,10 +366,13 @@ export function useCalculator(): UseCalculatorReturn {
     [state.inputs, state.assumptions]
   )
 
-  // Calculate total savings (memoized)
+  // Calculate total savings (memoized) - includes cash
   const totalSavings = useMemo(
     () =>
-      state.inputs.savings.rrsp + state.inputs.savings.tfsa + state.inputs.savings.nonRegistered,
+      state.inputs.savings.rrsp +
+      state.inputs.savings.tfsa +
+      state.inputs.savings.nonRegistered +
+      state.inputs.savings.cash,
     [state.inputs.savings]
   )
 

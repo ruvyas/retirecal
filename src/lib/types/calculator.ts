@@ -5,6 +5,10 @@
 // Re-export validation bounds from constants for convenience
 export { VALIDATION_BOUNDS, type ValidationBounds } from '../calculations/constants'
 
+// Import and re-export tax types for convenience
+import type { Province, TaxBracket, ProvinceInfo, TaxCalculationResult } from './tax'
+export type { Province, TaxBracket, ProvinceInfo, TaxCalculationResult }
+
 /**
  * Breakdown of savings by account type
  */
@@ -15,6 +19,8 @@ export interface SavingsBreakdown {
   tfsa: number
   /** Non-registered investment account balance */
   nonRegistered: number
+  /** Cash savings (0% growth) */
+  cash: number
 }
 
 /**
@@ -45,6 +51,8 @@ export interface CalculatorInputs {
   contributions: ContributionBreakdown
   /** Expected annual spending in retirement */
   annualRetirementSpending: number
+  /** Province/territory for tax calculation */
+  province: Province
 }
 
 /**
@@ -63,6 +71,16 @@ export interface CalculatorResults {
   monthlyIncomeToday: number
   /** Gap (negative) or surplus (positive) vs desired spending */
   incomeGap: number
+
+  // Breakdown values for formula explanations
+  /** Growth of initial savings until retirement */
+  savingsGrowth: number
+  /** Growth from monthly contributions until retirement */
+  contributionGrowth: number
+  /** Pre-tax sustainable monthly income */
+  grossMonthlyIncome: number
+  /** Spending adjusted for inflation at retirement */
+  inflationAdjustedSpending: number
 }
 
 /**
@@ -75,8 +93,8 @@ export interface Assumptions {
   preRetirementReturn: number
   /** Expected return rate during retirement as decimal */
   retirementReturn: number
-  /** Blended tax rate for withdrawals as decimal */
-  taxRate: number
+  /** Override tax rate for withdrawals as decimal, or null to use bracket calculation */
+  taxRate: number | null
   /** Expected age at end of life for planning purposes */
   lifeExpectancy: number
 }

@@ -33,6 +33,7 @@ function areInputsEqual(a: CalculatorInputs, b: CalculatorInputs): boolean {
     a.retirementAge === b.retirementAge &&
     a.annualIncome === b.annualIncome &&
     a.annualRetirementSpending === b.annualRetirementSpending &&
+    a.province === b.province &&
     a.savings.rrsp === b.savings.rrsp &&
     a.savings.tfsa === b.savings.tfsa &&
     a.savings.nonRegistered === b.savings.nonRegistered &&
@@ -72,7 +73,7 @@ export function Calculator({ className }: CalculatorProps) {
   }, [])
 
   const handleAssumptionChange = useCallback(
-    (key: keyof Assumptions, value: number) => {
+    (key: keyof Assumptions, value: number | null) => {
       setAssumptions({ [key]: value })
     },
     [setAssumptions]
@@ -146,12 +147,15 @@ export function Calculator({ className }: CalculatorProps) {
           <AssumptionsAccordion
             assumptions={assumptions}
             onAssumptionChange={handleAssumptionChange}
+            province={inputs.province}
+            estimatedAnnualIncome={results.monthlyIncome * 12}
           />
         </WizardSection>
       </div>
 
       <ResultsSection
         results={results}
+        assumptions={assumptions}
         projectionData={projectionData}
         retirementAge={internalInputs.retirementAge}
         currentAge={internalInputs.currentAge}

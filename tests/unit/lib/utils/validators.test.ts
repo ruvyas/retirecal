@@ -15,9 +15,10 @@ const validInputs: CalculatorInputs = {
   currentAge: 30,
   retirementAge: 65,
   annualIncome: 75000,
-  savings: { rrsp: 50000, tfsa: 30000, nonRegistered: 20000 },
+  savings: { rrsp: 50000, tfsa: 30000, nonRegistered: 20000, cash: 0 },
   contributions: { rrsp: 200, tfsa: 200, nonRegistered: 100 },
   annualRetirementSpending: 50000,
+  province: 'ON',
 }
 
 describe('validateCurrentAge', () => {
@@ -160,17 +161,17 @@ describe('validateCurrencyAmount', () => {
 
 describe('validateSavingsBreakdown', () => {
   it('returns undefined for valid savings', () => {
-    const savings = { rrsp: 50000, tfsa: 30000, nonRegistered: 20000 }
+    const savings = { rrsp: 50000, tfsa: 30000, nonRegistered: 20000, cash: 0 }
     expect(validateSavingsBreakdown(savings)).toBeUndefined()
   })
 
   it('returns undefined for all zero savings', () => {
-    const savings = { rrsp: 0, tfsa: 0, nonRegistered: 0 }
+    const savings = { rrsp: 0, tfsa: 0, nonRegistered: 0, cash: 0 }
     expect(validateSavingsBreakdown(savings)).toBeUndefined()
   })
 
   it('returns error for negative RRSP', () => {
-    const savings = { rrsp: -100, tfsa: 30000, nonRegistered: 20000 }
+    const savings = { rrsp: -100, tfsa: 30000, nonRegistered: 20000, cash: 0 }
     const errors = validateSavingsBreakdown(savings)
     expect(errors?.rrsp).toContain('negative')
     expect(errors?.tfsa).toBeUndefined()
@@ -178,19 +179,19 @@ describe('validateSavingsBreakdown', () => {
   })
 
   it('returns error for negative TFSA', () => {
-    const savings = { rrsp: 50000, tfsa: -100, nonRegistered: 20000 }
+    const savings = { rrsp: 50000, tfsa: -100, nonRegistered: 20000, cash: 0 }
     const errors = validateSavingsBreakdown(savings)
     expect(errors?.tfsa).toContain('negative')
   })
 
   it('returns error for negative non-registered', () => {
-    const savings = { rrsp: 50000, tfsa: 30000, nonRegistered: -100 }
+    const savings = { rrsp: 50000, tfsa: 30000, nonRegistered: -100, cash: 0 }
     const errors = validateSavingsBreakdown(savings)
     expect(errors?.nonRegistered).toContain('negative')
   })
 
   it('returns multiple errors when multiple fields invalid', () => {
-    const savings = { rrsp: -100, tfsa: -200, nonRegistered: -300 }
+    const savings = { rrsp: -100, tfsa: -200, nonRegistered: -300, cash: 0 }
     const errors = validateSavingsBreakdown(savings)
     expect(errors?.rrsp).toBeDefined()
     expect(errors?.tfsa).toBeDefined()
@@ -225,7 +226,7 @@ describe('validateInputs', () => {
   it('validates savings breakdown', () => {
     const inputs = {
       ...validInputs,
-      savings: { rrsp: -100, tfsa: 30000, nonRegistered: 20000 },
+      savings: { rrsp: -100, tfsa: 30000, nonRegistered: 20000, cash: 0 },
     }
     const errors = validateInputs(inputs)
     expect(errors.savings?.rrsp).toBeDefined()
@@ -251,9 +252,10 @@ describe('validateInputs', () => {
       currentAge: 10,
       retirementAge: 5,
       annualIncome: -1000,
-      savings: { rrsp: -100, tfsa: -100, nonRegistered: -100 },
+      savings: { rrsp: -100, tfsa: -100, nonRegistered: -100, cash: 0 },
       contributions: { rrsp: -200, tfsa: -200, nonRegistered: -100 },
       annualRetirementSpending: -1000,
+      province: 'ON',
     }
     const errors = validateInputs(invalidInputs)
     expect(errors.currentAge).toBeDefined()
@@ -288,7 +290,7 @@ describe('areInputsValid', () => {
   it('returns false when savings has invalid values', () => {
     const inputs = {
       ...validInputs,
-      savings: { rrsp: -1, tfsa: 0, nonRegistered: 0 },
+      savings: { rrsp: -1, tfsa: 0, nonRegistered: 0, cash: 0 },
     }
     expect(areInputsValid(inputs)).toBe(false)
   })
@@ -342,12 +344,13 @@ describe('sanitizeInputs', () => {
   it('clamps negative savings to 0', () => {
     const inputs = {
       ...validInputs,
-      savings: { rrsp: -100, tfsa: -200, nonRegistered: -300 },
+      savings: { rrsp: -100, tfsa: -200, nonRegistered: -300, cash: -400 },
     }
     const result = sanitizeInputs(inputs)
     expect(result.savings.rrsp).toBe(0)
     expect(result.savings.tfsa).toBe(0)
     expect(result.savings.nonRegistered).toBe(0)
+    expect(result.savings.cash).toBe(0)
   })
 
   it('clamps contributions above 100K to 100K per account', () => {

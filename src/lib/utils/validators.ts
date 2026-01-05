@@ -17,6 +17,7 @@ export interface ValidationErrors {
     rrsp?: string
     tfsa?: string
     nonRegistered?: string
+    cash?: string
   }
   contributions?: {
     rrsp?: string
@@ -107,6 +108,9 @@ export function validateSavingsBreakdown(
 
   const nonRegError = validateCurrencyAmount(savings.nonRegistered, 'Non-registered savings')
   if (nonRegError) errors.nonRegistered = nonRegError
+
+  const cashError = validateCurrencyAmount(savings.cash, 'Cash savings')
+  if (cashError) errors.cash = cashError
 
   return Object.keys(errors).length > 0 ? errors : undefined
 }
@@ -232,6 +236,7 @@ export function sanitizeInputs(inputs: CalculatorInputs): CalculatorInputs {
       rrsp: clamp(inputs.savings.rrsp, 0, VALIDATION_BOUNDS.amounts.max),
       tfsa: clamp(inputs.savings.tfsa, 0, VALIDATION_BOUNDS.amounts.max),
       nonRegistered: clamp(inputs.savings.nonRegistered, 0, VALIDATION_BOUNDS.amounts.max),
+      cash: clamp(inputs.savings.cash, 0, VALIDATION_BOUNDS.amounts.max),
     },
     contributions: {
       rrsp: clamp(
@@ -255,5 +260,6 @@ export function sanitizeInputs(inputs: CalculatorInputs): CalculatorInputs {
       VALIDATION_BOUNDS.annualRetirementSpending.min,
       VALIDATION_BOUNDS.annualRetirementSpending.max
     ),
+    province: inputs.province,
   }
 }

@@ -117,17 +117,11 @@ export function IncomeExpensesChart({
           <div className="text-xl font-semibold tabular-nums">
             {formatCurrency(sustainableIncomeToday)}/mo
           </div>
-          <div className="text-sm text-muted-foreground tabular-nums">
-            ({formatCurrency(sustainableIncome)}/mo at retirement)
-          </div>
         </div>
         <div className="rounded-lg bg-muted/50 p-3">
           <div className="text-sm text-muted-foreground">Desired Spending</div>
           <div className="text-xl font-semibold tabular-nums">
             {formatCurrency(desiredSpendingToday)}/mo
-          </div>
-          <div className="text-sm text-muted-foreground tabular-nums">
-            ({formatCurrency(desiredSpending)}/mo at retirement)
           </div>
         </div>
       </div>

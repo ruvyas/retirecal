@@ -12,6 +12,7 @@ const defaultValues: CalculatorInputs = {
     rrsp: 50000,
     tfsa: 30000,
     nonRegistered: 20000,
+    cash: 0,
   },
   contributions: {
     rrsp: 200,
@@ -19,6 +20,7 @@ const defaultValues: CalculatorInputs = {
     nonRegistered: 100,
   },
   annualRetirementSpending: 50000,
+  province: 'ON',
 }
 
 describe('InputPanel', () => {

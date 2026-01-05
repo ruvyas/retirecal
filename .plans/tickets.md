@@ -430,13 +430,13 @@
 
 **Acceptance Criteria:**
 
-- [ ] Update `CalculatorResults` type in `src/lib/types/calculator.ts` with:
+- [x] Update `CalculatorResults` type in `src/lib/types/calculator.ts` with:
   - `savingsGrowth`: Growth of initial savings
   - `contributionGrowth`: Growth from monthly contributions
   - `grossMonthlyIncome`: Pre-tax sustainable income
   - `inflationAdjustedSpending`: Spending adjusted for inflation
-- [ ] Update `computeResults()` in `src/hooks/useCalculator.ts` to return these values
-- [ ] Unit tests verify breakdown values are calculated correctly
+- [x] Update `computeResults()` in `src/hooks/useCalculator.ts` to return these values
+- [x] Unit tests verify breakdown values are calculated correctly
 
 ---
 
@@ -446,12 +446,12 @@
 
 **Acceptance Criteria:**
 
-- [ ] `src/components/Calculator/FormulaTooltip.tsx` created
-- [ ] Uses Shadcn Tooltip component
-- [ ] Displays step-by-step calculation with values
-- [ ] Formats numbers as currency where appropriate
-- [ ] Accessible with keyboard navigation
-- [ ] Unit tests verify tooltip renders correctly
+- [x] `src/components/Calculator/FormulaTooltip.tsx` created
+- [x] Uses Shadcn Tooltip component
+- [x] Displays step-by-step calculation with values
+- [x] Formats numbers as currency where appropriate
+- [x] Accessible with keyboard navigation
+- [x] Unit tests verify tooltip renders correctly
 
 ---
 
@@ -461,13 +461,13 @@
 
 **Acceptance Criteria:**
 
-- [ ] Projected Savings shows: initial growth + contribution growth breakdown
-- [ ] Sustainable Monthly Income shows: portfolio × rate ÷ 12 × (1-tax)
-- [ ] Income Gap shows: income - inflation-adjusted spending breakdown
-- [ ] Retirement Runway shows: years until savings depleted
-- [ ] Tooltips appear on hover with calculation details
-- [ ] Mobile-friendly (tap to show on touch devices)
-- [ ] Unit tests verify tooltips display correct values
+- [x] Projected Savings shows: initial growth + contribution growth breakdown
+- [x] Sustainable Monthly Income shows: portfolio × rate ÷ 12 × (1-tax)
+- [x] Income Gap shows: income - inflation-adjusted spending breakdown
+- [x] Retirement Runway shows: years until savings depleted
+- [x] Tooltips appear on hover with calculation details
+- [x] Mobile-friendly (tap to show on touch devices)
+- [x] Unit tests verify tooltips display correct values
 
 ---
 
